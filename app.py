@@ -28,13 +28,15 @@ def fetch():
         all_user.append(new_user)
     return json.dumps(all_user), 200
 
+
 ## Create User
 @app.route('/create-user', methods=['POST'])
 def add():
     data = request.get_json()
-    email = data['eamil']
+    email = data['email']
     name = data['name']
     password = data['password']
 
-    database.add_instance(User, eamil=email, name=name, password=password)
+    database.add_instance(User, email=email, name=name, password=password)
+    
     return json.dumps("Added"), 200

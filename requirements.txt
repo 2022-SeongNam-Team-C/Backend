@@ -9,5 +9,5 @@ python-dotenv==0.19.2
 gunicorn
 sqlalchemy_utils
 urllib3
-
-
+pandas
+werkzeug

@@ -13,7 +13,7 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 30
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 604800
 jwt=JWTManager(app)
 app.config.update(DEBUG=True)
-app.config['BCRYPT_LEVEL'] = 10
+#app.config['BCRYPT_LEVEL'] = 10
 
 bcrypt=Bcrypt(app)
 

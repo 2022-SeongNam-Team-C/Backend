@@ -6,7 +6,10 @@ from entity import database
 from entity.model import User, Image
 from entity.model import db
 
+from api.email_api import bp as email_module
+
 app = create_app()
+app.register_blueprint(email_module)
 
 @app.route('/')
 def welcome():

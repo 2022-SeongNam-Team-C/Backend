@@ -11,3 +11,4 @@ sqlalchemy_utils
 urllib3
 pandas
 werkzeug
+Flask-Mail

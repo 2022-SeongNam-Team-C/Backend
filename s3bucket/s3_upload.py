@@ -1,0 +1,14 @@
+from .s3_connect import s3
+
+def s3_put_object(s3, bucket, file, filename) :
+    try: 
+        s3.put_object(
+            Body = file,
+            Bucket = bucket,
+            Key = f'images/{filename}',
+            ContentType = file.content_type,
+            ACL='public-read'
+        )
+    except Exception as e:
+        return False
+    return True

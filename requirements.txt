@@ -12,3 +12,6 @@ urllib3
 pandas
 werkzeug
 Flask-Mail
+flask==2.2.1
+gunicorn
+boto3

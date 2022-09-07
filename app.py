@@ -1,11 +1,6 @@
 from flask import Flask, request, jsonify
-from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token, get_jwt_identity, create_refresh_token,
-    set_access_cookies, set_refresh_cookies
-)
-from auth import (deauthenticate_user,
-                  refresh_authentication, get_authenticated_user,
-                  auth_required, AuthenticationError)
+from flask_jwt_extended import (JWTManager, jwt_required, create_access_token, get_jwt_identity, create_refresh_token, set_access_cookies, set_refresh_cookies)
+from auth import (deauthenticate_user, refresh_authentication, get_authenticated_user, auth_required, AuthenticationError)
 from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)

@@ -11,3 +11,6 @@ sqlalchemy_utils
 urllib3
 pandas
 werkzeug
+flask==2.2.1
+gunicorn
+boto3

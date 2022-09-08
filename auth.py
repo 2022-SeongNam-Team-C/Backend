@@ -37,10 +37,21 @@ def check_token(access_token):
 
     return payload
 
+#데이터베이스에서 유저 정보를 가져오는 코드입니다
+def get_authenticated_user():
+  
+    identity = get_jwt_identity()
 
+    DB = db.Database()
+    sql = "SELECT * FROM `user` WHERE email = '%s' ORDER BY no DESC LIMIT 1" %(identity)
+    row = DB.executeAll(sql)
 
+    if len(row) == 1:
+        return row[0]
+    else:
+        raise UserNotFound(identity)
 
-#로그아웃 구현
+#로그아웃해주는 코드입니다
 def deauthenticate_user():
    
     identity = get_jwt_identity()
@@ -49,7 +60,26 @@ def deauthenticate_user():
     unset_refresh_cookies(response)
     return response
     
+# 토큰 재발행해주는 코드입니다
+def refresh_authentication(request_refresh_token):
+     
+    user = get_authenticated_user() 
+
+    access_token = create_access_token(identity=user['email'])
+
+    response = jsonify(access_token=access_token, refresh_token=request_refresh_token)
+    set_access_cookies(response=response, encoded_access_token=access_token)
     
+    exp_timestamp = get_jwt()['exp']
+    now = datetime.now(timezone.utc)
+    target_timestamp = datetime.timestamp(now + timedelta(hours=10))
+    if target_timestamp > exp_timestamp:        
+        refresh_token = create_refresh_token(identity=user['email'])
+        response = jsonify(access_token=access_token, refresh_token=refresh_token) 
+        print(response) 
+        set_refresh_cookies(response=response, encoded_refresh_token=refresh_token)
+
+    return response
     
     
     

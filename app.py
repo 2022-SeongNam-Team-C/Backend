@@ -1,5 +1,5 @@
 import json
-from flask import request
+from flask import Flask, request
 
 from __init__ import create_app
 from entity import database
@@ -9,22 +9,10 @@ from entity.model import db
 from api.email_api import bp as email_module
 
 from crypt import methods
-from urllib import request
-import datetime as dt
-from s3bucket.s3_connect import s3
-from s3bucket.s3_upload import s3_put_object
+#from urllib import request
+from datetime import datetime as dt
 
-
-from crypt import methods
-from urllib import request
-import datetime as dt
-from s3bucket.s3_connect import s3
-from s3bucket.s3_upload import s3_put_object
-
-
-from crypt import methods
-from urllib import request
-import datetime as dt
+from werkzeug.utils import secure_filename
 from s3bucket.s3_connect import s3
 from s3bucket.s3_upload import s3_put_object
 
@@ -38,7 +26,7 @@ app.register_blueprint(email_module)
 @app.route('/')
 def welcome():
     db.create_all()
-    return ("db init finish!")
+    return ("db init finish!")
 
 
 ## Create user
@@ -102,57 +90,28 @@ def fetch_images():
 @app.route('/s3-image-upload-test', methods=['POST'])
 def s3upload_test():
     # html에서 가져온 이미지 
-    file = request.file['file_give']
+    file = request.files['file']
+    file.save(secure_filename(file.filename))
 
     # 파일 이름 지정
     filename = file.filename.split('.')[0]
-    ext = file.filename.split('.')[-1]
-    img_name = dt.datetime.now().strtime(f"{filename}--%Y-%m-%d-%H-%M-%S.{ext}")
-
-    # 현재 로그인 사용자 정보
+    image_type = file.filename.split('.')[-1]
+    image_name = dt.now().strftime(f"{filename}--%Y-%m-%d-%H-%M-%S.{image_type}")
     
     # s3버킷에 업로드
-    s3_put_object(s3, 'ladder-s3-bucket', file, img_name)
-
-    # postgres image table에 업로드
-
-
-
-
-@app.route('/s3-image-upload-test', methods=['POST'])
-def s3upload_test():
-    # html에서 가져온 이미지 
-    file = request.file['file_give']
-
-    # 파일 이름 지정
-    filename = file.filename.split('.')[0]
-    ext = file.filename.split('.')[-1]
-    img_name = dt.datetime.now().strtime(f"{filename}--%Y-%m-%d-%H-%M-%S.{ext}")
+    s3_put_object(s3, 'ladder-s3-bucket', file, image_name)
 
     # 현재 로그인 사용자 정보
-    
-    # s3버킷에 업로드
-    s3_put_object(s3, 'ladder-s3-bucket', file, img_name)
+    user_id = 1
 
     # postgres image table에 업로드
+    image_url = "s3://ladder-s3-bucket/images/"+image_name
+    image_url = image_url.replace(" ","/")
+    database.add_instance(Image, user_id = user_id, image_url = image_url)
+
+    return "성공적으로 사진이 S3에 저장되었습니다."
 
 
-@app.route('/s3-image-upload-test', methods=['POST'])
-def s3upload_test():
-    # html에서 가져온 이미지 
-    file = request.file['file_give']
-
-    # 파일 이름 지정
-    filename = file.filename.split('.')[0]
-    ext = file.filename.split('.')[-1]
-    img_name = dt.datetime.now().strtime(f"{filename}--%Y-%m-%d-%H-%M-%S.{ext}")
-
-    # 현재 로그인 사용자 정보
-    
-    # s3버킷에 업로드
-    s3_put_object(s3, 'ladder-s3-bucket', file, img_name)
-
-    # postgres image table에 업로드
 
 
 if __name__ == "__main__":

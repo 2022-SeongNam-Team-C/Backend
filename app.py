@@ -47,6 +47,15 @@ def logout():
     return response, 200
 
 
+# 토큰 재발행하는 코드
+@app.route('/api/v1/auth/refresh', methods=['GET'])
+@jwt_required(refresh=True, locations=['cookies'])
+def refreshAuth():
+    token = request.cookies.get('refresh_token_cookie')
+    response = refresh_authentication(token)
+    return response, 200
+
+
 
 if __name__ == "__main__":
     app.run(port=5123, debug=True)

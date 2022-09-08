@@ -8,7 +8,7 @@ from flask_bcrypt import Bcrypt
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'Team C'
 
-#JWT 만료 시간입니다. 단위는 초 단위입니다!
+#JWT 만료 시간입니다. 단위는 초 단위입니다.
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 30
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 604800
 jwt=JWTManager(app)
@@ -45,8 +45,38 @@ def login():
 def logout():
     response = deauthenticate_user()
     return response, 200
+  
 
+#회원가입
+@app.route('/api/v1/auth/signup', methods=['POST'])
+def register():
 
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    email = request.json.get('email')
+    password = request.json.get('password')
+    name = request.json.get('name')
+    if not email:
+        return jsonify({"msg": "Missing email parameter"}), 400
+    if not password:
+        return jsonify({"msg": "Missing password parameter"}), 400
+    if not name:
+        return jsonify({"msg": "Missing name parameter"}), 400
+     
+    encrypted_password = bcrypt.generate_password_hash(password=password.encode('utf-8'), rounds=10).decode()
+    
+    print('email', email)
+    print('password', password)
+    print('encrypted_password', encrypted_password)
+
+    db_pwd = "$2b$10$oheJjGmtFzuide30FANYh.nodyigWs.5hbAZSswGPYJ6MzUDCMcHy"
+    if not bcrypt.check_password_hash(pw_hash=db_pwd, password=password):
+        return jsonify(msg="비밀번호를 확인해주세요."), 403
+
+    return jsonify({"msg": "register success"}), 201
+  
+  
 # 토큰 재발행하는 코드
 @app.route('/api/v1/auth/refresh', methods=['GET'])
 @jwt_required(refresh=True, locations=['cookies'])
@@ -54,7 +84,6 @@ def refreshAuth():
     token = request.cookies.get('refresh_token_cookie')
     response = refresh_authentication(token)
     return response, 200
-
 
 
 if __name__ == "__main__":

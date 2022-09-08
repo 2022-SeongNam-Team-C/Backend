@@ -24,8 +24,7 @@ class AccessDenied(AuthenticationError):
     """Access is denied"""
 
 class UserNotFound(AuthenticationError):
-    """User identity not found"""
-    
+    """User identity not found"""    
     
 def check_token(access_token):
     try:
@@ -81,7 +80,21 @@ def refresh_authentication(request_refresh_token):
 
     return response
     
-    
+#토큰이 올바른 디비에 있는지 확인하는 코드입니다.
+def auth_required(func):
+   
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        verify_jwt_in_request(locations=['cookies'])
+        try:
+            user = get_authenticated_user()
+            
+            print("user", user)
+            return func(*args, **kwargs)
+        except (UserNotFound, AccountInactive) as error:
+            print('authorization failed: %s', error)
+            abort(403)
+    return wrapper
     
     
     

@@ -12,6 +12,7 @@ from s3bucket.s3_upload import s3_put_result_image, s3_put_origin_image
 
 from s3bucket.s3_upload import s3_put_object
 
+
 bp = Blueprint('s3', __name__, url_prefix='/api/v1')
 # bp.config.update(DEBUG=True)
 
@@ -27,7 +28,6 @@ def upload_result_image():
     image_type = file.filename.split('.')[-1]
     image_created = dt.now().strftime('%Y-%m-%d-%H-%M-%S')
     image_name = f"{image_created}--{filename}.{image_type}"
-
     # s3버킷에 업로드
     s3_put_result_image(s3, 'ladder-s3-bucket', file, image_name)
 

@@ -1,6 +1,6 @@
 from .s3_connect import s3
 
-def s3_put_object(s3, bucket, file, filename) :
+def s3_put_result_object(s3, bucket, file, filename) :
     '''
     s3 bucket에 지정 파일 업로드
     :param s3 : 연결된 s3 객체(boto3 client)

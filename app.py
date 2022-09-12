@@ -5,6 +5,13 @@ from auth import (deauthenticate_user, refresh_authentication, get_authenticated
                  auth_required, AuthenticationError)
 from flask_bcrypt import Bcrypt
 
+from __init__ import create_app
+from entity import database
+from entity.model import User, Image
+from entity.model import db
+
+
+app = create_app()
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'Team C'
 
@@ -16,6 +23,43 @@ app.config.update(DEBUG=True)
 #app.config['BCRYPT_LEVEL'] = 10
 
 bcrypt=Bcrypt(app)
+
+@app.route('/')
+def welcome():
+    db.create_all()
+    return ("db init finish!")
+  
+  
+## Create user
+@app.route('/create-user', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    email = data['email']
+    name = data['name']
+    password = data['password']
+
+    database.add_instance(User, email=email, name=name, password=password)
+    
+    return json.dumps("Added"), 200
+
+
+## Read all user
+@app.route('/fetch-users', methods=['GET'])
+def fetch_users():
+    users = database.get_all(User)
+    all_user = []
+    for user in users:
+        new_user = {
+            "user_id": user.user_id,
+            "email": user.email,
+            "name": user.name,
+            "password": user.password,
+        }
+        all_user.append(new_user)
+
+    return json.dumps(all_user), 200
+  
+  
 
 #로그인 구현입니다.
 @app.route('/api/v1/auth/sighin',methods=['POST'])

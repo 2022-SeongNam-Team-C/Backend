@@ -27,8 +27,7 @@ def s3_put_origin_image(s3, bucket, file, filename) :
             Key = f'origin/{filename}',
             ContentType = file.content_type
             Key = f'images/{filename}',
-            ContentType = file.content_type,
-            ACL='public-read'
+            ContentType = file.content_type
         )
     except Exception as e:
         return False

@@ -1,8 +1,8 @@
 import pymysql
 
 class Database():
-    def__init__(self):
-    self.db=pymysql.connect(host='db.host.com',
+    def __init__(self):
+        self.db=pymysql.connect(host='db.host.com',
                                   user='user_name',
                                   password='user_password',
                                   db='db_name',

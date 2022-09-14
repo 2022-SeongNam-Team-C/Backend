@@ -57,7 +57,7 @@ def login():
     set_access_cookies(response=response, encoded_access_token=access_token)
     set_refresh_cookies(response=response, encoded_refresh_token=refresh_token)
 
-    return response, 200
+    return response, 200 
 
 #로그아웃
 @app.route('/api/v1/auth/signout', methods=['POST'])

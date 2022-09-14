@@ -5,6 +5,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token, get_j
                                 unset_access_cookies, unset_refresh_cookies, set_access_cookies, set_refresh_cookies, get_jwt)
 from jwt import InvalidTokenError
 
+from entity.model import User
 import db
 
 class AuthenticationError(Exception):
@@ -37,17 +38,13 @@ def check_token(access_token):
     return payload
 
 #데이터베이스에서 유저 정보를 가져오는 코드입니다
+
 def get_authenticated_user():
-  
     identity = get_jwt_identity()
-
-    DB = db.Database()
-    sql = "SELECT * FROM `user` WHERE email = '%s' ORDER BY no DESC LIMIT 1" %(identity)
-    row = DB.executeAll(sql)
-
-    if len(row) == 1:
-        return row[0]
-    else:
+    user = User.query.filter_by(email=identity).all()
+    if len(user) == 1:
+        return user[0]
+    else: 
         raise UserNotFound(identity)
 
 #로그아웃해주는 코드입니다

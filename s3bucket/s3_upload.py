@@ -12,8 +12,7 @@ def s3_put_object(s3, bucket, file, filename) :
             Body = file,
             Bucket = bucket,
             Key = f'images/{filename}',
-            ContentType = file.content_type,
-            ACL='public-read'
+            ContentType = file.content_type
         )
     except Exception as e:
         return False

@@ -85,7 +85,7 @@ def register():
         return jsonify({"msg": "Missing name parameter"}), 400
 
           
-
+   
     database.add_instance(User, name=name, email=email, password=password)
 
         

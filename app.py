@@ -13,10 +13,6 @@ from api.s3_api import bp as s3_module
 from crypt import methods
 from datetime import datetime as dt
 
-from werkzeug.utils import secure_filename
-from s3bucket.s3_connect import s3
-from s3bucket.s3_upload import s3_put_object
-
 
 app = Flask(__name__)
 app.config.update(DEBUG=True)
@@ -91,6 +87,7 @@ def fetch_images():
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 # @app.route('/s3-image-upload-test', methods=['POST'])
 # def s3upload_test():
@@ -119,6 +116,8 @@ def fetch_images():
 
 
 >>>>>>> 0aa2d66 (Feat : #8 s3 api 모듈분리 (1차))
+=======
+>>>>>>> e48a4de (Chore : #8 모듈 분리 작업중)
 
 if __name__ == "__main__":
     app.run(port=5123, debug=True)

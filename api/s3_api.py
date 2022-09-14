@@ -21,14 +21,13 @@ bp = Blueprint('s3', __name__, url_prefix='/api/v1')
 def upload_image():
     # html에서 가져온 이미지 
     file = request.files['file']
-    file.save(secure_filename(file.filename))
 
     # 파일 이름 지정
     filename = file.filename.split('.')[0]
     image_type = file.filename.split('.')[-1]
     image_created = dt.now().strftime('%Y-%m-%d-%H-%M-%S')
     image_name = f"{image_created}--{filename}.{image_type}"
-    
+
     # s3버킷에 업로드
     s3_put_object(s3, 'ladder-s3-bucket', file, image_name)
 

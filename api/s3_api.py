@@ -43,12 +43,33 @@ def upload_image():
     return "성공적으로 사진이 S3에 저장되었습니다."
 
 
-@bp.route('/s3/get-image-url', methods=['GET'])
-def get_image(image_name):
+# 이미지 URL불러오기
+@bp.route('/s3/get-image-url', methods=['POST'])
+def get_image():
+
+    data = request.get_json()
+    image_name = data['image_name']
+    
     return f"https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/{image_name}"
 
 
 # 파일 이름으로 이미지 삭제
 @bp.route('/s3/image-delete', methods=['POST'])
 def delete_image(image_name):
+
+    data = request.get_json()
+    image_name = data['image_name']
+
     s3.delte_object(Bucket='ladder-s3-bucket', Key=f"{image_name}")
+
+
+# History User Id에 대한 이미지 URL불러오기
+@bp.route('/s3/get-image-url', methods=['POS'])
+def get_image():
+
+    data = request.get_json()
+    image_name = data['image_name']
+    
+    return f"https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/{image_name}"
+
+

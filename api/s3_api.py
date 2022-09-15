@@ -1,6 +1,5 @@
 from flask import request, Blueprint
 from werkzeug.utils import secure_filename
-import json
 
 from entity import database
 from entity.model import Image

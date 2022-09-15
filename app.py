@@ -85,7 +85,7 @@ def register():
         return jsonify({"msg": "Missing name parameter"}), 400
 
           
-   
+    #user = User.query.filter_by(email=email).all()[0]
     database.add_instance(User, name=name, email=email, password=password)
 
         

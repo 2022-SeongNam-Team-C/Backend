@@ -1,6 +1,5 @@
 from flask import request, Blueprint
 from werkzeug.utils import secure_filename
-import json
 
 from entity import database
 from entity.model import Image
@@ -50,27 +49,11 @@ def get_image():
 
     data = request.get_json()
     image_name = data['image_name']
+    
+
     result_image_url = f"https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/{image_name}"
 
     return result_image_url
 
-
-
-# History : User Id에 대한 이미지 URL불러오기
-@bp.route('/s3/history', methods=['POST'])
-def history():
-
-    data = request.get_json()
-    user_id = data["user_id"]
-
-    images = Image.query.filter_by(user_id=user_id).all()
-    all_image = []
-    for image in images:
-        new_image = {
-            "image_url": image.image_url
-        }
-        all_image.append(new_image)
-
-    return json.dumps(all_image), 200
 
 

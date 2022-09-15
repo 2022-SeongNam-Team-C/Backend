@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 bp = Blueprint('emailSend', __name__, url_prefix='/api/v1')
 # bp.config.update(DEBUG=True)
 
+# post
 @bp.route('/images/transmission')
 def email_send(): 
     mail = Mail(current_app)

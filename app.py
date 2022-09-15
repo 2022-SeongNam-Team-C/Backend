@@ -14,17 +14,11 @@ app = create_app()
 app = Flask(__name__)  # Flask 객체 선언, 파라미터로 어플리케이션 패키지의 이름을 넣어줌.
 api = Api(app, version=1.0, title="ladder api", description='ladder api docs', doc='/api-docs')  # Flask 객체에 Api 객체 등록
 
-
-ladder_api = api.namespace('ladder', description='ladder api docs')
-
-# @app.route('/')
-# def welcome():
-#     db.#create_all()
-#     return ("db init finish!")
+ladder_api = api.namespace('api/v1', description='ladder api docs')
 
 
 ## Create user
-@ladder_api.route('/createuser')
+@ladder_api.route('/create-user')
 class Createuser(Resource):
     def post(self):
         data = request.get_json()
@@ -37,7 +31,7 @@ class Createuser(Resource):
         return json.dumps("Added"), 200
 
 ## Read all user 
-@ladder_api.route('/fetchusers')
+@ladder_api.route('/fetch-users')
 class Fetchusers(Resource):
     def get(self):
         users = database.get_all(User)
@@ -55,7 +49,7 @@ class Fetchusers(Resource):
 
 
 ## Uploade image 
-@ladder_api.route('/uploadimage')
+@ladder_api.route('/upload-image')
 class Uploadimage(Resource):
     def post(self):
         data = request.get_json()

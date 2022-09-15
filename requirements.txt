@@ -7,7 +7,7 @@ Jinja2==3.0.3
 psycopg2==2.9.3
 python-dotenv==0.19.2
 gunicorn
-sqlalchemy_utils
+sqlalchemy_utils 
 urllib3
 pandas
 werkzeug==2.1.2

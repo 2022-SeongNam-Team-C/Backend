@@ -13,6 +13,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     create_at = db.Column(db.TIMESTAMP, server_default = db.func.now() )
     update_at = db.Column(db.TIMESTAMP, server_default = db.func.now(), onupdate=datetime.now )
+    is_deleted = db.Column(db.Boolean, default=False)
 
     def __init__(self, name, email, password, **kwargs):
         self.name = name
@@ -30,6 +31,7 @@ class Image(db.Model):
     image_url = db.Column(db.String(150))
     create_at = db.Column(db.DateTime, default=datetime.now)
     update_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now )
+    is_deleted = db.Column(db.Boolean, default=False)
 
 #    create_at = db.Column(db.TIMESTAMP, server_default = db.func.now() )
 #    update_at = db.Column(db.TIMESTAMP, server_default = db.func.now(), onupdate=datetime.now )

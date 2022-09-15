@@ -10,4 +10,6 @@ gunicorn
 sqlalchemy_utils
 urllib3
 pandas
-werkzeug
+werkzeug==2.1.2
+flask-swagger-ui==4.11.1
+flask-restx

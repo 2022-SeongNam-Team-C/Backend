@@ -36,7 +36,7 @@ class Createuser(Resource):
         
         return json.dumps("Added"), 200
 
-## Read all user
+## Read all user  
 @ladder_api.route('/fetchusers')
 class Fetchusers(Resource):
     def get(self):

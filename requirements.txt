@@ -9,7 +9,7 @@ python-dotenv==0.19.2
 gunicorn
 sqlalchemy_utils
 urllib3
-pandas
+pandas  
 werkzeug==2.1.2
 flask-swagger-ui==4.11.1
 flask-restx

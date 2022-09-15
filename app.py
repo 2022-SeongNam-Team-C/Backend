@@ -99,11 +99,6 @@ def refreshAuth():
     response = refresh_authentication(token)
     return response, 200
 
-@app.route('/sendEmail', methods=['POST'])
-@auth_required
-def authTest():
-    # 이메일 전송 코드 작성
-    return jsonify(msg="success"), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5123)

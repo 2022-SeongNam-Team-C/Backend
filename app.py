@@ -1,21 +1,16 @@
 import json
 from flask import request
-
 from __init__ import create_app
 from entity import database
 from entity.model import User, Image
 from entity.model import db
-from flask_swagger_ui import get_swaggerui_blueprint
-from flask import Flask  # 서버 구현을 위한 Flask 객체 import
 from flask_restx import Api, Resource # Api 구현을 위한 Api 객체 import
-
+from api.email_api import bp as email_module
 app = create_app()
+app.register_blueprint(email_module)
 
-app = Flask(__name__)  # Flask 객체 선언, 파라미터로 어플리케이션 패키지의 이름을 넣어줌.
 api = Api(app, version=1.0, title="ladder api", description='ladder api docs', doc='/api-docs')  # Flask 객체에 Api 객체 등록
-
 ladder_api = api.namespace('api/v1', description='ladder api docs')
-
 
 ## Create user
 @ladder_api.route('/create-user')

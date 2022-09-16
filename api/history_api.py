@@ -1,16 +1,10 @@
 from flask import request, Blueprint
-from crypt import methods
 import json
 
-from entity import database
-from entity import model
 from entity.model import Image
 
-from s3bucket.s3_connect import s3
-from s3bucket.s3_upload import s3_put_result_image, s3_put_origin_image
 
-
-bp = Blueprint('s3', __name__, url_prefix='/api/v1')
+bp = Blueprint('history', __name__, url_prefix='/api/v1')
 
 
 # History : User Id에 대한 이미지 URL불러오기
@@ -23,7 +17,7 @@ def history(id):
     all_image = []
     for image in images:
         new_image = {
-            "image_url": image.image_url
+            "image_url": image.result_url
         }
         all_image.append(new_image)
     

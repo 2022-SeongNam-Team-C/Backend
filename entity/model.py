@@ -28,7 +28,8 @@ class Image(db.Model):
     __tablename__ = 'image'
     image_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
-    image_url = db.Column(db.String(150))
+    origin_url = db.Column(db.String(200))
+    result_url = db.Column(db.String(200))
     create_at = db.Column(db.DateTime, default=datetime.now)
     update_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now )
     is_deleted = db.Column(db.Boolean, default=False)

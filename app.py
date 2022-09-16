@@ -8,6 +8,7 @@ from entity.model import db
 
 from api.email_api import bp as email_module
 from api.s3_api import bp as s3_module
+from api.history_api import bp as history_module
 
 
 from crypt import methods
@@ -20,6 +21,7 @@ app.config.update(DEBUG=True)
 app = create_app()
 app.register_blueprint(email_module)
 app.register_blueprint(s3_module)
+app.register_blueprint(history_module)
 
 
 @app.route('/')

@@ -1,5 +1,5 @@
 import json
-from flask import request
+from flask import Flask, request
 
 from __init__ import create_app
 from entity import database
@@ -7,14 +7,27 @@ from entity.model import User, Image
 from entity.model import db
 
 from api.email_api import bp as email_module
+from api.s3_api import bp as s3_module
+from api.history_api import bp as history_module
+
+
+from crypt import methods
+from datetime import datetime as dt
+
+
+app = Flask(__name__)
+app.config.update(DEBUG=True)
 
 app = create_app()
 app.register_blueprint(email_module)
+app.register_blueprint(s3_module)
+app.register_blueprint(history_module)
+
 
 @app.route('/')
 def welcome():
     db.create_all()
-    return ("db init finish!")
+    return ("db init finish!")
 
 
 ## Create user
@@ -73,3 +86,8 @@ def fetch_images():
         all_image.append(new_image)
 
     return json.dumps(all_image), 200
+
+
+
+if __name__ == "__main__":
+    app.run(port=5123, debug=True)

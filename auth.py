@@ -7,6 +7,7 @@ from jwt import InvalidTokenError
 
 from entity.model import User
 import db
+from entity import config
 
 class AuthenticationError(Exception):
     """Base Authentication Exception"""
@@ -49,11 +50,11 @@ def get_authenticated_user():
 
 #로그아웃해주는 코드입니다
 def deauthenticate_user():
-   
     identity = get_jwt_identity()
     response = jsonify({"msg": "logout successful"})
     unset_access_cookies(response)
     unset_refresh_cookies(response)
+    config.jwt_redis.delete("refresh_token_cookie")
     return response
     
 # 토큰 재발행해주는 코드입니다
@@ -63,7 +64,11 @@ def refresh_authentication(request_refresh_token):
 
     access_token = create_access_token(identity=user.email)
 
-    response = jsonify(access_token=access_token, refresh_token=request_refresh_token)
+    is_redis_token = config.jwt_redis.get(request_refresh_token)
+    if is_redis_token is None:
+        return {'msg' : 'refresh token fail'}, 400
+
+    response = jsonify(access_token=access_token, refresh_token=request_refresh_token, msg="토큰 재발행이 성공했습니다.")
     set_access_cookies(response=response, encoded_access_token=access_token)
     
     exp_timestamp = get_jwt()['exp']
@@ -72,8 +77,9 @@ def refresh_authentication(request_refresh_token):
     if target_timestamp > exp_timestamp:        
         refresh_token = create_refresh_token(identity=user.email)
         response = jsonify(access_token=access_token, refresh_token=refresh_token) 
-        print(response) 
         set_refresh_cookies(response=response, encoded_refresh_token=refresh_token)
+        config.jwt_redis.delete(request_refresh_token)
+        config.jwt_redis.set(refresh_token, user.user_id, ex=timedelta(days=14))
 
     return response
     

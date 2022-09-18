@@ -1,2 +1,8 @@
 flask==2.2.1
 gunicorn
+flask_jwt_extended
+flask_sqlalchemy
+pymysql
+flask_bcrypt
+psycopg2
+redis

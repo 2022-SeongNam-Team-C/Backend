@@ -61,7 +61,7 @@ def refresh_authentication(request_refresh_token):
      
     user = get_authenticated_user() 
 
-    access_token = create_access_token(identity=user['email'])
+    access_token = create_access_token(identity=user.email)
 
     response = jsonify(access_token=access_token, refresh_token=request_refresh_token)
     set_access_cookies(response=response, encoded_access_token=access_token)
@@ -70,7 +70,7 @@ def refresh_authentication(request_refresh_token):
     now = datetime.now(timezone.utc)
     target_timestamp = datetime.timestamp(now + timedelta(hours=10))
     if target_timestamp > exp_timestamp:        
-        refresh_token = create_refresh_token(identity=user['email'])
+        refresh_token = create_refresh_token(identity=user.email)
         response = jsonify(access_token=access_token, refresh_token=refresh_token) 
         print(response) 
         set_refresh_cookies(response=response, encoded_refresh_token=refresh_token)

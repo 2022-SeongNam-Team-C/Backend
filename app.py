@@ -94,4 +94,5 @@ def fetch_images():
 
 
 if __name__ == "__main__":
-    app.run(port=5123, debug=True)
+    app.debug = True
+    app.run(port=5123)

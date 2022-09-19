@@ -122,4 +122,5 @@ def fetch_images():
 >>>>>>> e48a4de (Chore : #8 모듈 분리 작업중)
 
 if __name__ == "__main__":
-    app.run(port=5123, debug=True)
+    app.debug = True
+    app.run(port=5123)

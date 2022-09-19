@@ -11,4 +11,3 @@ RUN apt-get -y install libpq-dev
 
 RUN POSTGRES_HOST_AUTH_METHOD=trust
 
-RUN POSTGRES_HOST_AUTH_METHOD=trust

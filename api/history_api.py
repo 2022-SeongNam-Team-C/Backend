@@ -7,7 +7,7 @@ from entity.model import Image
 bp = Blueprint('history', __name__, url_prefix='/api/v1')
 
 
-# History : User Id에 대한 이미지 URL불러오기
+# History : User Id에 대한 이미지 URL불러오기 -> 토큰 이슈해결해야함
 @bp.route('/s3/history/<id>', methods=['GET'])
 def history(id):
 

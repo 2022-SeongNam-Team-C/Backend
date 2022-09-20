@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from flask_restx import Resource, Namespace
 
 Email = Namespace('api/v1')
-bp = Blueprint("app", __name__, url_prefix="/api/v1")
+bp = Blueprint("Emailsend", __name__, url_prefix="/api/v1")
 
 @Email.route('/images/transmission')
 class Emailsend(Resource):
@@ -26,4 +26,3 @@ class Emailsend(Resource):
             msg.attach(secure_filename(file.filename), 'image/png', fp.read())
         
         mail.send(msg)
-        return '성공적으로 전송되었습니다.'

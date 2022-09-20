@@ -10,4 +10,3 @@ RUN pip install -r requirements.txt
 RUN apt-get -y install libpq-dev
 
 RUN POSTGRES_HOST_AUTH_METHOD=trust
-

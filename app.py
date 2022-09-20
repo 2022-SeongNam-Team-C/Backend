@@ -1,20 +1,42 @@
 import json
-from flask import request
+from flask import Flask, request
+
 from __init__ import create_app
 from entity import database
 from entity.model import User, Image
 from entity.model import db
+
 from flask_restx import Api, Resource# Api 구현을 위한 Api 객체 import
 from api.email_api import bp as email_module
+from api.s3_api import bp as s3_module
+from api.history_api import bp as history_module
 from api.email_api import Email
+from api.s3_api import s3
+from api.history_api import History
+
+from crypt import methods
+from datetime import datetime as dt
+
+
+app = Flask(__name__)
+app.config.update(DEBUG=True)
 
 app = create_app()
 app.register_blueprint(email_module, url_prefix = '/api/v1')
+app.register_blueprint(s3_module, url_prefix = '/api/v1')
+app.register_blueprint(history_module, url_prefix = '/api/v1')
+
+@app.route('/')
+def welcome():
+    db.create_all()
+    return ("db init finish!")
 
 api = Api(app, version=1.0, title="ladder api", description='ladder api docs', doc='/api-docs')  # Flask 객체에 Api 객체 등록
 ladder_api = api.namespace('api/v1', description='ladder api docs')
 
 api.add_namespace(Email, '')
+api.add_namespace(s3, '')
+api.add_namespace(History, '')
 
 ## Create user
 @ladder_api.route('/create-user')

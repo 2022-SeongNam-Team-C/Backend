@@ -21,3 +21,4 @@ werkzeug
 Flask-Mail
 gunicorn
 boto3
+redis

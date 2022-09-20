@@ -6,11 +6,15 @@ from entity.model import User, Image
 from entity.model import db
 from flask_restx import Api, Resource # Api 구현을 위한 Api 객체 import
 from api.email_api import bp as email_module
+from api.email_api import Email
+
 app = create_app()
-app.register_blueprint(email_module)
+app.register_blueprint(email_module, url_prefix = '/api/1')
 
 api = Api(app, version=1.0, title="ladder api", description='ladder api docs', doc='/api-docs')  # Flask 객체에 Api 객체 등록
-ladder_api = api.namespace('api/v1', description='ladder api docs')
+ladder_api = api.namespace('ladder', description='ladder api docs')
+
+api.add_namespace(Email, '')
 
 ## Create user
 @ladder_api.route('/create-user')

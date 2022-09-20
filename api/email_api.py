@@ -3,7 +3,7 @@ from flask_mail import Mail, Message
 from werkzeug.utils import secure_filename
 from flask_restx import Resource, Namespace
 
-Email = Namespace('Email')
+Email = Namespace('api/v1')
 bp = Blueprint("app", __name__, url_prefix="/api/v1")
 
 @Email.route('/images/transmission')
@@ -27,6 +27,3 @@ class Emailsend(Resource):
         
         mail.send(msg)
         return '성공적으로 전송되었습니다.'
-
-if __name__ == "__main__":
-    bp.run(debug=True, host='0.0.0.0', port=80)    

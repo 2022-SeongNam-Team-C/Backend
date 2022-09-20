@@ -12,9 +12,6 @@ from s3bucket.s3_upload import s3_put_result_image, s3_put_origin_image
 from flask_restx import Resource, Namespace
 
 s3 = Namespace('api/v1')
-bp = Blueprint('s3', __name__, url_prefix='/api/v1')
-# bp.config.update(DEBUG=True)
-
 
 # s3버킷에 이미지 업로드하며, DB에 image_url과 현재 로그인된 사용자 id저장
 # (미완) 현재 로그인된 사용자 정보 
@@ -68,8 +65,6 @@ class upload_origin_image(Resource):
         database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
 
         return "성공적으로 사진이 S3에 저장되었습니다."
-
-
 
 # (result)변환 이미지 URL불러오기
 @s3.route('/s3/result/get-image-url/<image_name>')

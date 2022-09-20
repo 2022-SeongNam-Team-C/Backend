@@ -5,7 +5,6 @@ from __init__ import create_app
 from entity import database
 from entity.model import User, Image
 from entity.model import db
-
 from flask_restx import Api, Resource# Api 구현을 위한 Api 객체 import
 from api.email_api import bp as email_module
 from api.s3_api import bp as s3_module
@@ -13,15 +12,13 @@ from api.history_api import bp as history_module
 from api.email_api import Email
 from api.s3_api import s3
 from api.history_api import History
-
 from crypt import methods
 from datetime import datetime as dt
 
-
 app = Flask(__name__)
 app.config.update(DEBUG=True)
-
 app = create_app()
+
 app.register_blueprint(email_module, url_prefix = '/api/v1')
 app.register_blueprint(s3_module, url_prefix = '/api/v1')
 app.register_blueprint(history_module, url_prefix = '/api/v1')

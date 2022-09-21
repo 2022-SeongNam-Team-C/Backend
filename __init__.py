@@ -1,7 +1,7 @@
 from flask import Flask
 
 from entity.model import db
-from entity import config
+from config import config
 import os
 
 def create_app():

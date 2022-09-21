@@ -2,10 +2,7 @@ from datetime import timedelta
 from os import access
 from flask import request, jsonify
 from __init__ import create_app
-from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token, get_jwt_identity, create_refresh_token,
-    set_access_cookies, set_refresh_cookies
-)
+from flask_jwt_extended import ( JWTManager, jwt_required, create_access_token, create_refresh_token,)
 from auth import (deauthenticate_user,
                   refresh_authentication, get_authenticated_user,
                   auth_required, AuthenticationError)
@@ -13,7 +10,6 @@ from flask_bcrypt import Bcrypt
 import json
 from entity import database
 from entity.model import User
-from entity import config
 
 app = create_app()
 app.config['JWT_SECRET_KEY'] = 'Team C'
@@ -22,10 +18,7 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 604800
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 
-'''
-로그인
-'''
-@app.route('/api/v1/auth/signin', methods=['POST'])
+@app.route('/api/v1/auth/signin', methods=['POST'])    # login api
 def login():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
@@ -38,31 +31,28 @@ def login():
         return jsonify({"msg": "Missing password parameter"}), 400
   
     user = User.query.filter_by(email=email).all()
+    # user_email = User.query.filter(User.email == email).first().email
     if len(user) == 0:
         return jsonify(msg="이메일, 비밀번호를 확인해주세요."), 403
 
     if not User.check_password(user[0], password):
         return jsonify(msg="이메일, 비밀번호를 확인해주세요."), 403 
 
+    user_name = User.query.filter(User.email == email).first().name
+
     access_token = create_access_token(identity=email)
     refresh_token = create_refresh_token(identity=email)
-    response = jsonify(access_token=access_token, refresh_token=refresh_token, msg="로그인이 성공했습니다.")
-    # response = jsonify({"msg": "login successful"})# 추가사항
-    # set_access_cookies(response=response, encoded_access_token=access_token)
-    # set_refresh_cookies(response=response, encoded_refresh_token=refresh_token)
-    # config.jwt_redis.set(refresh_token, user[0].user_id, ex=timedelta(days=14))
+    response = jsonify(access_token=access_token, refresh_token=refresh_token, user_name=user_name)
     return response, 200 
 
-#로그아웃
-@app.route('/api/v1/auth/signout', methods=['POST'])
+@app.route('/api/v1/auth/signout', methods=['POST'])   # logout api
 @jwt_required(locations=['cookies'])
 def logout():
     # 쿠키 삭제 필요함 삭제하는 코드
     response = deauthenticate_user()
     return response, 200
 
-#회원가입
-@app.route('/api/v1/auth/signup', methods=['POST'])
+@app.route('/api/v1/auth/signup', methods=['POST'])   # register users api
 def register():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
@@ -85,9 +75,9 @@ def register():
     database.add_instance(User, name=name, email=email, password=password)
 
     user_dict = {
-        "email": email,
-        "password": password,
-        "name": name
+        "email": User.query.filter(User.email == email).first().email,
+        "password": User.query.filter(User.email == email).first().password,
+        "name": User.query.filter(User.email == email).first().name
     }
 
     user_json = json.dumps(user_dict)

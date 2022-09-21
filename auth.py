@@ -6,7 +6,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token, get_j
 from jwt import InvalidTokenError
 
 from entity.model import User
-from entity import config
+from config import config
 
 class AuthenticationError(Exception):
     """Base Authentication Exception"""

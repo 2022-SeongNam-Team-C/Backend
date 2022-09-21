@@ -1,4 +1,5 @@
 from datetime import timedelta
+from os import access
 from flask import request, jsonify
 from __init__ import create_app
 from flask_jwt_extended import (
@@ -12,7 +13,6 @@ from flask_bcrypt import Bcrypt
 import json
 from entity import database
 from entity.model import User
-from init import create_app
 from entity import config
 
 app = create_app()
@@ -47,13 +47,10 @@ def login():
     access_token = create_access_token(identity=email)
     refresh_token = create_refresh_token(identity=email)
     response = jsonify(access_token=access_token, refresh_token=refresh_token, msg="로그인이 성공했습니다.")
-    #response = jsonify({"msg": "login successful"})# 추가사항
-
-    set_access_cookies(response=response, encoded_access_token=access_token)
-    set_refresh_cookies(response=response, encoded_refresh_token=refresh_token)
-
-    config.jwt_redis.set(refresh_token, user[0].user_id, ex=timedelta(days=14))
-
+    # response = jsonify({"msg": "login successful"})# 추가사항
+    # set_access_cookies(response=response, encoded_access_token=access_token)
+    # set_refresh_cookies(response=response, encoded_refresh_token=refresh_token)
+    # config.jwt_redis.set(refresh_token, user[0].user_id, ex=timedelta(days=14))
     return response, 200 
 
 #로그아웃
@@ -85,10 +82,6 @@ def register():
     user = User.query.filter_by(email=email).all()
     if len(user) != 0:
         return jsonify(msg="이미 가입된 이메일주소입니다."), 403
-
-    # user_table.email = email
-    # user_table.password = password
-    # user_table.name = name
     database.add_instance(User, name=name, email=email, password=password)
 
     user_dict = {
@@ -99,9 +92,6 @@ def register():
 
     user_json = json.dumps(user_dict)
     return user_json
-    # user = User.query.filter_by(email=email).all()[0]
-    # database.add_instance(User, name=name, email=email, password=password)
-    # return jsonify(msg="signup success"), 201
 
 # 토큰 재발행
 @app.route('/api/v1/auth/refresh', methods=['GET'])

@@ -1,11 +1,7 @@
 flask==2.2.1
 gunicorn
 flask_jwt_extended
-#flask_sqlalchemy
-pymysql
 flask_bcrypt
-#psycopg2
-
 mysql-connector-python==8.0.27
 Flask-SQLAlchemy==2.5.1
 Flask-Migrate==3.1.0
@@ -13,12 +9,10 @@ alembic==1.7.5
 Jinja2==3.0.3
 psycopg2==2.9.3
 python-dotenv==0.19.2
-gunicorn
 sqlalchemy_utils
 urllib3
 pandas
 werkzeug
 Flask-Mail
-gunicorn
 boto3
 redis

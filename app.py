@@ -3,7 +3,7 @@ from os import access
 from flask import request, jsonify
 from __init__ import create_app
 from flask_jwt_extended import ( JWTManager, jwt_required, create_access_token, create_refresh_token,)
-from auth import (deauthenticate_user,
+from config.auth import (deauthenticate_user,
                   refresh_authentication, get_authenticated_user,
                   auth_required, AuthenticationError)
 from flask_bcrypt import Bcrypt

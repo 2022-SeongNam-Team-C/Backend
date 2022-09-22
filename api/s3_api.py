@@ -17,7 +17,7 @@ bp = Blueprint('s3', __name__, url_prefix='/api/v1')
 # bp.config.update(DEBUG=True)
 
 
-# s3버킷에 이미지 업로드하며, DB에 image_url과 현재 로그인된 사용자 id저장s
+# s3버킷에 이미지 업로드하며, DB에 image_url과 현재 로그인된 사용자 id저장
 @bp.route('/s3/result/upload-image-url', methods=['POST'])
 def upload_result_image():
     # html에서 가져온 이미지 

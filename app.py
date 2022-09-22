@@ -92,4 +92,3 @@ def fetch_images():
 if __name__ == "__main__":
     app.debug = True
     app.run(port=5123)
-    print("Debug mode test--------")

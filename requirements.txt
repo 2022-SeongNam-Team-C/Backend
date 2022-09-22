@@ -1,4 +1,4 @@
-flask==2.2.1
+flask==2.0.2
 mysql-connector-python==8.0.27
 Flask-SQLAlchemy==2.5.1
 Flask-Migrate==3.1.0
@@ -9,8 +9,7 @@ python-dotenv==0.19.2
 gunicorn
 sqlalchemy_utils
 urllib3
-pandas
-werkzeug
+werkzeug==2.1.2
 Flask-Mail
-gunicorn
 boto3
+flask_restx

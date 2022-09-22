@@ -8,6 +8,7 @@ def s3_connection():
             region_name = "ap-northeast-2",
             aws_access_key_id = "AKIAWLCHMQTOIEJTLTDQ",
             aws_secret_access_key = ""
+            # secret key 넣고 사용해주세요
         )
     except Exception as e:
         print(e)

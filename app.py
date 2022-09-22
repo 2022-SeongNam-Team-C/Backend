@@ -22,6 +22,8 @@ from datetime import datetime as dt
 from api.email_api import Email
 from api.s3_api import s3
 from api.history_api import History
+from crypt import methods
+from urllib import request
 
 app = Flask(__name__)
 app.config.update(DEBUG=True)
@@ -138,4 +140,3 @@ class Signup(Resource):
 
 if __name__ == '__main__':
     app.run(debug=True, port=5123)
-

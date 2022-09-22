@@ -11,6 +11,8 @@ from s3bucket.s3_connect import s3
 from s3bucket.s3_upload import s3_put_result_image, s3_put_origin_image
 from flask_restx import Resource, Namespace
 
+bp = Blueprint('s3', __name__, url_prefix='/api/v1')
+
 s3 = Namespace('api/v1')
 
 # s3버킷에 이미지 업로드하며, DB에 image_url과 현재 로그인된 사용자 id저장

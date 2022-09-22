@@ -1,8 +1,7 @@
 from flask import Flask
 
 from entity.model import db
-from entity import config
-import os
+from config import config
 
 def create_app():
     app = Flask(__name__)

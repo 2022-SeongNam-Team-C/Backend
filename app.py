@@ -13,7 +13,7 @@ from api.email_api import Email
 from api.s3_api import s3
 from api.history_api import History
 from crypt import methods
-from datetime import datetime as dt
+from urllib import request
 
 app = Flask(__name__)
 app.config.update(DEBUG=True)
@@ -96,4 +96,6 @@ class Fetchimage(Resource):
         return json.dumps(all_image), 200
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=80)
+    app.debug = True
+    app.run(port=5123)
+

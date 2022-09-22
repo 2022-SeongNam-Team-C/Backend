@@ -10,7 +10,7 @@ from datetime import datetime as dt
 from s3bucket.s3_connect import s3
 from s3bucket.s3_upload import s3_put_result_image, s3_put_origin_image
 
-from s3bucket.s3_upload import s3_put_object
+from s3bucket.s3_upload import s3_put_result_image, s3_put_origin_image
 
 
 bp = Blueprint('s3', __name__, url_prefix='/api/v1')

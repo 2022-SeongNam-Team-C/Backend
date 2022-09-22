@@ -15,10 +15,6 @@ from crypt import methods
 from urllib import request
 
 
-from crypt import methods
-from urllib import request
-
-
 app = Flask(__name__)
 app.config.update(DEBUG=True)
 
@@ -96,3 +92,4 @@ def fetch_images():
 if __name__ == "__main__":
     app.debug = True
     app.run(port=5123)
+    print("Debug mode test--------")

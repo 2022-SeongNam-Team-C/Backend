@@ -19,5 +19,10 @@ def edit_instance(model, user_id, **kwargs):
         setattr(instance, attr, new_value)
     commit_changes()
 
+
+def session_execute():
+    db.session.execute()
+
+
 def commit_changes():
     db.session.commit()

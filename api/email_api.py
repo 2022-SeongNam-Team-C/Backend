@@ -6,7 +6,7 @@ from flask_restx import Resource, Namespace
 Email = Namespace('api/v1')
 bp = Blueprint("Emailsend", __name__, url_prefix="/api/v1")
 
-@Email.route('/images/transmission')
+@Email.route('/images/transmission/<mail>')
 class Emailsend(Resource):
     def post(self):
         mail = Mail(current_app)

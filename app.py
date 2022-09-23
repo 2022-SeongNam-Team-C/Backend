@@ -46,7 +46,7 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 60 * 60 * 24 * 14
 app.config['JWT_TOKEN_LOCATION'] = ['json']   # jwt 토큰을 점검할 때 확인할 위치
 jwt = JWTManager(app)
 
-jwt_redis = redis.StrictRedis(host='ladder-redis', port=6379, decode_responses=True)
+jwt_redis = redis.StrictRedis(host='redis', port=6379, decode_responses=True)
 bcrypt = Bcrypt(app)
 
 @ladder_api.route('/auth/signin')    # login api

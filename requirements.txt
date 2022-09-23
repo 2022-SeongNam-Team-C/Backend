@@ -7,8 +7,8 @@ Jinja2==3.0.3
 psycopg2==2.9.3
 python-dotenv==0.19.2
 gunicorn
-sqlalchemy_utils
 urllib3
+sqlalchemy_utils
 werkzeug==2.1.2
 Flask-Mail
 boto3

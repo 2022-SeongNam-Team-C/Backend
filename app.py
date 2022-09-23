@@ -1,34 +1,27 @@
-from datetime import timedelta
-from os import access
-from urllib import response
-from flask import request, jsonify, Flask
+from flask import jsonify, request
 from flask_jwt_extended import ( JWTManager, jwt_required, create_access_token, create_refresh_token, get_jwt_identity)
 from config.auth import (deauthenticate_user,
                   refresh_authentication, get_authenticated_user,
                   auth_required, AuthenticationError)
 from flask_bcrypt import Bcrypt
 import redis
-import json
 from __init__ import create_app
 from entity import database
-from entity.model import User, Image
+from entity.model import User
 from entity.model import db
 from flask_restx import Api, Resource# Api 구현을 위한 Api 객체 import
 from api.email_api import bp as email_module
 from api.s3_api import bp as s3_module
 from api.history_api import bp as history_module
-from crypt import methods
 from datetime import datetime as dt
 from api.email_api import Email
 from api.s3_api import s3
 from api.history_api import History
 from crypt import methods
-from urllib import request
 
-app = Flask(__name__)
-app.config.update(DEBUG=True)
+# app = Flask(__name__)
 app = create_app()
-
+app.config.update(DEBUG=True)
 app.register_blueprint(email_module, url_prefix = '/api/v1')
 app.register_blueprint(s3_module, url_prefix = '/api/v1')
 app.register_blueprint(history_module, url_prefix = '/api/v1')

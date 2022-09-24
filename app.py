@@ -51,6 +51,13 @@ jwt_redis = redis.StrictRedis(host='ladder-docker_redis-db_1', port=6379, decode
 bcrypt = Bcrypt(app)
 
 @ladder_api.route('/auth/signin')    # login api
+@api.doc(params={
+                'email': {'description': '', 'type': 'string', 'in': 'formData'},
+                'password': {'description': '', 'type': 'string', 'in': 'formData'},
+                'passwordcheck': {'description': '', 'type': 'string', 'in': 'formData'},
+                'username': {'description': '', 'type': 'string', 'in': 'formData'}
+                })
+
 class Signin(Resource):
     def post(self):
         if not request.is_json:
@@ -85,9 +92,12 @@ class Signin(Resource):
         # response = json.dumps(response_dict)
         # return user_json
         # response = jsonify(access_token=access_token, refresh_token=refresh_token, user_name=user_name)
-        return response_dict, 200 
+        return response_dict, 200
 
 @ladder_api.route('/auth/signout')   # logout api
+@s3.doc(params={'Authorization': {'description': '', 'type': 'string', 'in': 'header'}})
+# "Authorization": "Bearer ~~~"
+
 class Signout(Resource):
     @jwt_required
     def post(self):
@@ -95,9 +105,13 @@ class Signout(Resource):
         email = get_jwt_identity()
         print(email)
         jwt_redis.set(email, access_token)
-        return "logout", 200
+        return 200
 
-@ladder_api.route('/auth/signup/<email><password><name>')   # register users api
+@ladder_api.route('/auth/signup')   # register users api
+@api.doc(params={
+                'email': {'description': '', 'type': 'string', 'in': 'formData'},
+                'password': {'description': '', 'type': 'string', 'in': 'formData'},
+                })
 class Signup(Resource):
     def post(self):
         if not request.is_json:

@@ -18,7 +18,8 @@ s3 = Namespace('api/v1')
 # s3버킷에 이미지 업로드하며, DB에 image_url과 현재 로그인된 사용자 id저장
 # (미완) 현재 로그인된 사용자 정보 
 
-@s3.route('/s3/result/upload-image-url/<image_name>')
+@s3.route('/s3/result/upload-image-url')
+@s3.doc(params={'image_name': {'description': '', 'type': 'string', 'in': 'header'}})
 class upload_result_image(Resource):
     def post(self):
         # html에서 가져온 이미지 
@@ -46,7 +47,9 @@ class upload_result_image(Resource):
 
 
 # origin 이미지 S3업로드
-@s3.route('/s3/origin/upload-image-url/<image_name>')
+@s3.route('/s3/origin/upload-image-url')
+@s3.doc(params={'image_name': {'description': '', 'type': 'string', 'in': 'header'}})
+
 class upload_origin_image(Resource):
     def post(self):
         file = request.files['file']
@@ -69,22 +72,20 @@ class upload_origin_image(Resource):
         return "성공적으로 사진이 S3에 저장되었습니다."
 
 # (result)변환 이미지 URL불러오기
-@s3.route('/s3/result/get-image-url/<image_name>')
+@s3.route('/s3/result/get-image-url/')
+@s3.doc(params={'image_name': {'description': '', 'type': 'string', 'in': 'header'}})
 class get_result_image(Resource):
     def post(self):
         image_name = image_name
         result_image_url = f"https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/{image_name}"
-
-        return result_image_url
-
+        return result_image_url, 200
 
 # (origin)원본 이미지 URL불러오기
-@s3.route('/s3/origin/get-image-url/<image_name>')
+@s3.route('/s3/origin/get-image-url/')
+@s3.doc(params={'image_name': {'description': '', 'type': 'string', 'in': 'header'}})
 class get_origin_image(Resource):
     def post(self):
         image_name = image_name
         origin_image_url = f"https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/{image_name}"
 
-        return origin_image_url
-
-
+        return origin_image_url, 200

@@ -6,7 +6,11 @@ from flask_restx import Resource, Namespace
 Email = Namespace('api/v1')
 bp = Blueprint("Emailsend", __name__, url_prefix="/api/v1")
 
-@Email.route('/images/transmission/<mail>')
+@Email.route('/images/transmission')
+@Email.doc(params={
+                'body': {'description': '', 'type': 'module', 'in': 'body'},
+                'Authorization': {'description': '', 'type': 'string', 'in': 'header'},
+                })
 class Emailsend(Resource):
     def post(self):
         mail = Mail(current_app)
@@ -26,3 +30,5 @@ class Emailsend(Resource):
             msg.attach(secure_filename(file.filename), 'image/png', fp.read())
         
         mail.send(msg)
+
+        return 200

@@ -2,13 +2,19 @@ from flask import request, Blueprint
 import json
 
 from entity.model import Image
-from flask_restx import Resource, Namespace
+from flask_restx import Resource, Namespace, fields
 
 History = Namespace('api/v1')
 bp = Blueprint('history', __name__, url_prefix='/api/v1')
 
+
 # History : User Id에 대한 이미지 URL불러오기
 @History.route('/s3/history/<id>')
+
+@History.doc(
+params={'body': {'description': '', 'type': 'model', 'in': 'body'},
+'Authorization': {'description': '', 'type': 'string', 'in': 'header'}})
+
 class history(Resource):
     def get(self):
 
@@ -22,5 +28,6 @@ class history(Resource):
             }
             all_image.append(new_image)
         
-
         return json.dumps(all_image), 200
+    
+    

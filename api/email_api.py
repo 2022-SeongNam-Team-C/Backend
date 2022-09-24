@@ -15,7 +15,7 @@ class Emailsend(Resource):
         current_app.config['MAIL_SERVER']='smtp.gmail.com'
         current_app.config['MAIL_PORT']=465
         current_app.config['MAIL_USERNAME']='hee98.09.14@gmail.com'
-        current_app.config['MAIL_PASSWORD']='gnsnfprwllcfsocy'
+        current_app.config['MAIL_PASSWORD']=''
         current_app.config['MAIL_USE_TLS']=False
         current_app.config['MAIL_USE_SSL']=True
         mail = Mail(current_app)

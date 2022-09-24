@@ -10,6 +10,8 @@ from datetime import datetime as dt
 from s3bucket.s3_connect import s3
 from s3bucket.s3_upload import s3_put_result_image, s3_put_origin_image
 from flask_restx import Resource, Namespace
+import jwt as pyjwt
+secrets_key = 'Ladder_teamc'
 
 bp = Blueprint('s3', __name__, url_prefix='/api/v1')
 
@@ -34,8 +36,24 @@ class upload_result_image(Resource):
         s3_put_result_image(s3, 'ladder-s3-bucket', file, image_name)
 
         # 현재 로그인 사용자 정보 (토큰 연결시 수정 예정)
-        user_id = 1
-        #writer = get_user()
+        header_request = request.headers
+        bearer = header_request.get('Authorization')
+
+        # upload api for no login users
+        if not bearer:
+            user_id = "anonymous"
+            # postgres image table에 업로드
+            result_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/"+image_name
+            result_url = result_url.replace(" ","/")
+            database.add_instance(Image, user_id = user_id, result_url = result_url, is_deleted = False)
+
+            return "성공적으로 사진이 S3에 저장되었습니다."
+        
+        # upload api for login users
+        access_token = bearer.split()[1]
+        user_id = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+
+        # writer = get_user()
 
         # postgres image table에 업로드
         result_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/"+image_name
@@ -59,9 +77,21 @@ class upload_origin_image(Resource):
         s3_put_origin_image(s3, 'ladder-s3-bucket', file, image_name)
 
         # 현재 로그인 사용자 정보 (토큰 연결시 수정 예정)
-        user_id = 1
-        #writer = get_user()
+        header_request = request.headers
+        bearer = header_request.get('Authorization')
 
+        # upload api for no login users
+        if not bearer:
+            user_id = "anonymous"
+            origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+image_name
+            origin_url = origin_url.replace(" ","/")
+            database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
+
+            return "성공적으로 사진이 S3에 저장되었습니다."
+        #writer = get_user()
+        # upload api for login users
+        access_token = bearer.split()[1]
+        user_id = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
         origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+image_name
         origin_url = origin_url.replace(" ","/")
         database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)

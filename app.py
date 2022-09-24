@@ -22,6 +22,7 @@ from api.history_api import History
 from crypt import methods
 from flask_cors import CORS
 import jwt as pyjwt
+from module.check_token import check_access_token
 
 app = create_app()
 CORS(app)
@@ -53,26 +54,25 @@ bcrypt = Bcrypt(app)
 class Signin(Resource):
     def post(self):
         if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
+            return {"error": "Missing JSON data in request."}, 400
 
         email = request.json.get('email')
         password = request.json.get('password')
-        user_refresh_key = email + '_refresh'
-        # user_access_key = user + '_access'
         
         if not email:
-            return jsonify({"msg": "Missing email parameter"}), 400
+            return {"error": "Missing email parameter."}, 400
         if not password:
-            return jsonify({"msg": "Missing password parameter"}), 400
+            return {"error": "Missing password parameter."}, 400
     
         user = User.query.filter_by(email=email).all()
         
         if len(user) == 0:
-            return jsonify(msg="이메일, 비밀번호를 확인해주세요."), 403
+            return {"error": "We can't find this user."}, 404
 
         if not User.check_password(user[0], password):
-            return jsonify(msg="이메일, 비밀번호를 확인해주세요."), 403 
+            return {"error": "Please check your email and password."}, 403
 
+        user_refresh_key = email + '_refresh'
         user_name = User.query.filter(User.email == email).first().name
         access_token = create_access_token(identity=email)
         refresh_token = create_refresh_token(identity=email)
@@ -90,11 +90,14 @@ class Signout(Resource):
     def post(self):
         header_request = request.headers
         bearer = header_request.get('Authorization')
-        access_token = bearer.split()[1]
 
+        if not bearer:
+            return {"error": "You don't have access authentication."}, 401
+
+        access_token = bearer.split()[1]
         user = pyjwt.decode(access_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
         user_refresh_key = user + '_refresh'
-        user_access_key = user + '_access'
+        user_access_key = user+ '_access'
         jwt_redis.delete(user_refresh_key)
         jwt_redis.set(user_access_key, access_token, app.config['JWT_ACCESS_TOKEN_EXPIRES'])
         response_dict = {
@@ -109,23 +112,25 @@ class Signout(Resource):
 class Signup(Resource):
     def post(self):
         if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
+            return {"error": "Missing JSON in request."}, 400
 
         email = request.json.get('email')
         password = request.json.get('password')
         name = request.json.get('name')
 
         if not email:
-            return jsonify({"msg": "Missing email parameter"}), 400
+            return {"error": "Missing email parameter."}, 400
         if not password:
-            return jsonify({"msg": "Missing password parameter"}), 400
+            return {"error": "Missing password parameter."}, 400
         if not name:
-            return jsonify({"msg": "Missing name parameter"}), 400
+            return {"error": "Missing name parameter."}, 400
 
         # 이메일 중복검사
         user = User.query.filter_by(email=email).all()
         if len(user) != 0:
-            return jsonify(msg="이미 가입된 이메일주소입니다."), 403
+            return {"error": "This email is already registered."}, 409
+            # 409 conflict error, 리소스 충돌을 의미하는 상태코드 전송
+            # 리소스의 현재 상태와 충돌해서 해당 요청을 처리할 수 없어 클라이언트가 충돌을 수정해서 다시 요청을 보내야할 때 사용
         database.add_instance(User, name=name, email=email, password=password)
 
         user_dict = {
@@ -136,14 +141,17 @@ class Signup(Resource):
 
         return user_dict
 
-# 토큰 재발행
-@ladder_api.route('/auth/refresh')
+@ladder_api.route('/auth/refresh')  # refresh access token api
 class Resignin(Resource):
     def get(self):
         header_request = request.headers
         bearer = header_request.get('Authorization')
-        refresh_token = bearer.split()[1]
 
+        if not bearer:
+            return {"error": "You don't have access authentication."}, 401
+
+        refresh_token = bearer.split()[1]
+        
         user = pyjwt.decode(refresh_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
 
         access_token = create_access_token(identity=user)

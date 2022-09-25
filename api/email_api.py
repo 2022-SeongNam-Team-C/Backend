@@ -3,10 +3,13 @@ from flask_mail import Mail, Message
 from werkzeug.utils import secure_filename
 from flask_restx import Resource, Namespace
 import jwt as pyjwt
+import redis
 
 Email = Namespace('api/v1')
 bp = Blueprint("Emailsend", __name__, url_prefix="/api/v1")
 secrets_key = 'Ladder_teamc'
+
+jwt_redis = redis.StrictRedis(host='redis', port=6379, decode_responses=True)
 
 @Email.route('/images/transmission')
 class Emailsend(Resource):
@@ -34,10 +37,17 @@ class Emailsend(Resource):
                 msg.attach(secure_filename(file.filename), 'image/jpg', fp.read())
             mail.send(msg)
             return {"msg": "Email send success"}, 200
+    
 
         # login user email send
         access_token = bearer.split()[1]
         user = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+
+        # check signout user
+        user_access_key = user+ '_access'
+        is_logout = jwt_redis.get(user_access_key)
+        if is_logout:
+            return {"msg": "This is a invalid user."}, 401
 
         file = request.files['file']
         file.save(secure_filename(file.filename))

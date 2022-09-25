@@ -11,8 +11,10 @@ from s3bucket.s3_connect import s3
 from s3bucket.s3_upload import s3_put_result_image, s3_put_origin_image
 from flask_restx import Resource, Namespace
 import jwt as pyjwt
-secrets_key = 'Ladder_teamc'
+import redis
 
+secrets_key = 'Ladder_teamc'
+jwt_redis = redis.StrictRedis(host='redis', port=6379, decode_responses=True)
 bp = Blueprint('s3', __name__, url_prefix='/api/v1')
 
 s3 = Namespace('api/v1')
@@ -53,6 +55,12 @@ class upload_result_image(Resource):
         access_token = bearer.split()[1]
         user_id = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
 
+        # check signout user
+        user_access_key = user_id+ '_access'
+        is_logout = jwt_redis.get(user_access_key)
+        if is_logout:
+            return {"msg": "This is a invalid user."}, 401
+
         # writer = get_user()
 
         # postgres image table에 업로드
@@ -92,6 +100,13 @@ class upload_origin_image(Resource):
         # upload api for login users
         access_token = bearer.split()[1]
         user_id = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+
+        # check signout user
+        user_access_key = user_id+ '_access'
+        is_logout = jwt_redis.get(user_access_key)
+        if is_logout:
+            return {"msg": "This is a invalid user."}, 401
+            
         origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+image_name
         origin_url = origin_url.replace(" ","/")
         database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)

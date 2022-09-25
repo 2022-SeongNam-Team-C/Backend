@@ -153,6 +153,14 @@ class Resignin(Resource):
         refresh_token = bearer.split()[1]
         
         user = pyjwt.decode(refresh_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
+        user_refresh_key = user + '_refresh'
+
+        is_refresh = jwt_redis.get(user_refresh_key)
+        if not is_refresh:
+            return {"msg": "This is a invalid user."}, 401
+
+        if not refresh_token != is_refresh:
+            return {"msg": "server error"}, 500
 
         access_token = create_access_token(identity=user)
         response_dict = {

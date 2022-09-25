@@ -30,11 +30,11 @@ def saveOriginImage(file, email) :
     # 파일 이름 지정
     filename = file.filename.split('.')[0]
     origin_image_type = file.filename.split('.')[-1]
-    origin_image_created = dt.now().strftime('%Y-%m-%d-%H-%M-%S')
+    origin_image_created = dt.now().strftime('%Y%m%d-%H%M%S')
     origin_image_name = f"{origin_image_created}--{filename}.{origin_image_type}"
 
     # s3버킷에 업로드
-    s3_put_result_image(s3, 'ladder-s3-bucket', file, origin_image_name)
+    s3_put_origin_image(s3, 'ladder-s3-bucket', file, origin_image_name)
     
     # postgres image table에 origin_url 업로드
     origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+origin_image_name

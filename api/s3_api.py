@@ -15,8 +15,6 @@ bp = Blueprint('s3', __name__, url_prefix='/api/v1')
 
 s3 = Namespace('api/v1')
 
-# s3버킷에 이미지 업로드하며, DB에 image_url과 현재 로그인된 사용자 id저장
-# (미완) 현재 로그인된 사용자 정보 
 
 @s3.route('/s3/result/upload-image-url')
 class upload_result_image(Resource):
@@ -68,23 +66,5 @@ class upload_origin_image(Resource):
 
         return "성공적으로 사진이 S3에 저장되었습니다."
 
-# (result)변환 이미지 URL불러오기
-@s3.route('/s3/result/get-image-url/<image_name>')
-class get_result_image(Resource):
-    def post(self):
-        image_name = image_name
-        result_image_url = f"https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/{image_name}"
-
-        return result_image_url
-
-
-# (origin)원본 이미지 URL불러오기
-@s3.route('/s3/origin/get-image-url/<image_name>')
-class get_origin_image(Resource):
-    def post(self):
-        image_name = image_name
-        origin_image_url = f"https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/{image_name}"
-
-        return origin_image_url
 
 

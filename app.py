@@ -156,11 +156,12 @@ class Resignin(Resource):
         user_refresh_key = user + '_refresh'
 
         is_refresh = jwt_redis.get(user_refresh_key)
+        # print(is_refresh)
         if not is_refresh:
             return {"msg": "This is a invalid user."}, 401
 
-        if not refresh_token != is_refresh:
-            return {"msg": "server error"}, 500
+        if refresh_token != is_refresh:
+            return {"msg": is_refresh}, 500
 
         access_token = create_access_token(identity=user)
         response_dict = {

@@ -1,34 +1,31 @@
-from datetime import timedelta
 from os import access
-from urllib import response
-from flask import request, jsonify, Flask
+import secrets
+from flask import jsonify, request
 from flask_jwt_extended import ( JWTManager, jwt_required, create_access_token, create_refresh_token, get_jwt_identity)
 from config.auth import (deauthenticate_user,
                   refresh_authentication, get_authenticated_user,
                   auth_required, AuthenticationError)
 from flask_bcrypt import Bcrypt
 import redis
-import json
 from __init__ import create_app
 from entity import database
-from entity.model import User, Image
+from entity.model import User
 from entity.model import db
 from flask_restx import Api, Resource# Api 구현을 위한 Api 객체 import
 from api.email_api import bp as email_module
 from api.s3_api import bp as s3_module
 from api.history_api import bp as history_module
-from crypt import methods
 from datetime import datetime as dt
 from api.email_api import Email
 from api.s3_api import s3
 from api.history_api import History
 from crypt import methods
-from urllib import request
+from flask_cors import CORS
+import jwt as pyjwt
 
-app = Flask(__name__)
-app.config.update(DEBUG=True)
 app = create_app()
-
+CORS(app)
+app.config.update(DEBUG=True)
 app.register_blueprint(email_module, url_prefix = '/api/v1')
 app.register_blueprint(s3_module, url_prefix = '/api/v1')
 app.register_blueprint(history_module, url_prefix = '/api/v1')
@@ -41,23 +38,22 @@ api.add_namespace(Email, '')
 api.add_namespace(s3, '')
 api.add_namespace(History, '')
 
+secrets_key = 'Ladder_teamc'
+
 app.config['JWT_SECRET_KEY'] = 'Ladder_teamc'   # JWT 시크릿 키
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 30
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 604800
 app.config['JWT_TOKEN_LOCATION'] = ['json']   # jwt 토큰을 점검할 때 확인할 위치
 jwt = JWTManager(app)
 
-jwt_redis = redis.StrictRedis(host='ladder-docker_redis-db_1', port=6379, decode_responses=True)
+jwt_redis = redis.StrictRedis(host='redis', port=6379, decode_responses=True)
 bcrypt = Bcrypt(app)
 
 @ladder_api.route('/auth/signin')    # login api
-@api.doc(params={
-                'email': {'description': '', 'type': 'string', 'in': 'formData'},
-                'password': {'description': '', 'type': 'string', 'in': 'formData'},
-                'passwordcheck': {'description': '', 'type': 'string', 'in': 'formData'},
-                'username': {'description': '', 'type': 'string', 'in': 'formData'}
-                })
-
+@ladder_api.doc(params={'email': {'description': '', 'type': 'string', 'in': 'formData'},
+                        'password': {'description': '', 'type': 'string', 'in': 'formData'},
+                        'passwordcheck': {'description': '', 'type': 'string', 'in': 'formData'},
+                        'username': {'description': '', 'type': 'string', 'in': 'formData'}})
 class Signin(Resource):
     def post(self):
         if not request.is_json:
@@ -65,14 +61,16 @@ class Signin(Resource):
 
         email = request.json.get('email')
         password = request.json.get('password')
-        
+        user_refresh_key = email + '_refresh'
+        # user_access_key = user + '_access'
+
         if not email:
             return jsonify({"msg": "Missing email parameter"}), 400
         if not password:
             return jsonify({"msg": "Missing password parameter"}), 400
     
         user = User.query.filter_by(email=email).all()
-        # user_email = User.query.filter(User.email == email).first().email
+       
         if len(user) == 0:
             return jsonify(msg="이메일, 비밀번호를 확인해주세요."), 403
 
@@ -82,36 +80,40 @@ class Signin(Resource):
         user_name = User.query.filter(User.email == email).first().name
         access_token = create_access_token(identity=email)
         refresh_token = create_refresh_token(identity=email)
-        jwt_redis.set(email, refresh_token, 604800)
+        jwt_redis.set(user_refresh_key, refresh_token, app.config['JWT_REFRESH_TOKEN_EXPIRES'])
 
         response_dict = {
             "access_token": access_token,
             "refresh_token": refresh_token,
             "name": user_name
         }
-        # response = json.dumps(response_dict)
-        # return user_json
-        # response = jsonify(access_token=access_token, refresh_token=refresh_token, user_name=user_name)
         return response_dict, 200
 
-@ladder_api.route('/auth/signout')   # logout api
-@s3.doc(params={'Authorization': {'description': '', 'type': 'string', 'in': 'header'}})
-# "Authorization": "Bearer ~~~"
 
+@ladder_api.route('/auth/signout')   # logout api
+@ladder_api.doc(params={'Authorization': {'description': '', 'type': 'string', 'in': 'header'}})
+# "Authorization": "Bearer ~~~"
 class Signout(Resource):
-    @jwt_required
     def post(self):
-        access_token = request.json.get('access_token')
-        email = get_jwt_identity()
-        print(email)
-        jwt_redis.set(email, access_token)
-        return 200
+        header_request = request.headers
+        bearer = header_request.get('Authorization')
+        access_token = bearer.split()[1]
+
+        user = pyjwt.decode(access_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
+        user_refresh_key = user + '_refresh'
+        user_access_key = user + '_access'
+        jwt_redis.delete(user_refresh_key)
+        jwt_redis.set(user_access_key, access_token, app.config['JWT_ACCESS_TOKEN_EXPIRES'])
+        response_dict = {
+            "msg": "success logout",
+            "user": user
+        }
+
+        return response_dict, 200 
 
 @ladder_api.route('/auth/signup')   # register users api
-@api.doc(params={
-                'email': {'description': '', 'type': 'string', 'in': 'formData'},
-                'password': {'description': '', 'type': 'string', 'in': 'formData'},
-                })
+@ladder_api.doc(params={'email': {'description': '', 'type': 'string', 'in': 'formData'},
+                        'password': {'description': '', 'type': 'string', 'in': 'formData'}})
 class Signup(Resource):
     def post(self):
         if not request.is_json:
@@ -144,12 +146,21 @@ class Signup(Resource):
         return user_dict
 
 # 토큰 재발행
-# @app.route('/api/v1/auth/refresh', methods=['GET'])
-# @jwt_required(refresh=True, locations=['cookies'])
-# def refreshAuth():
-    # token = request.cookies.get('refresh_token_cookie')
-    # response = refresh_authentication(token)
-    # return "재발행", 200
+@ladder_api.route('/auth/refresh')
+@ladder_api.doc(params={'Authorization': {'description': '', 'type': 'string', 'in': 'header'}})
+class Resignin(Resource):
+    def get(self):
+        header_request = request.headers
+        bearer = header_request.get('Authorization')
+        refresh_token = bearer.split()[1]
+
+        user = pyjwt.decode(refresh_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
+
+        access_token = create_access_token(identity=user)
+        response_dict = {
+            "access_token": access_token
+        }
+        return response_dict, 200
 
 
 if __name__ == '__main__':

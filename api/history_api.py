@@ -12,8 +12,7 @@ bp = Blueprint('history', __name__, url_prefix='/api/v1')
 @History.route('/s3/history/<id>')
 
 @History.doc(
-params={'body': {'description': '', 'type': 'model', 'in': 'body'},
-'Authorization': {'description': '', 'type': 'string', 'in': 'header'}})
+params={'Authorization': {'description': '', 'type': 'string', 'in': 'header'}})
 
 class history(Resource):
     def get(self):

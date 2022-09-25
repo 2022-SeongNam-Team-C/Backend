@@ -82,7 +82,7 @@ class get_result_image(Resource):
 
 # (origin)원본 이미지 URL불러오기
 @s3.route('/s3/origin/get-image-url/')
-@s3.doc(params={'image_name': {'description': '', 'type': 'string', 'in': 'header'}})
+@s3.doc(params={'image_name': {'description': '', 'type':'string', 'in':'header'}})
 class get_origin_image(Resource):
     def post(self):
         image_name = image_name

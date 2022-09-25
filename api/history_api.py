@@ -11,7 +11,7 @@ secrets_key = 'Ladder_teamc'
 jwt_redis = redis.StrictRedis(host='redis', port=6379, decode_responses=True)
 
 # History : User Id에 대한 이미지 URL불러오기
-@History.route('/s3/history/<id>')
+@History.route('/s3/history')
 class history(Resource):
     def get(self):
 

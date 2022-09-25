@@ -44,7 +44,7 @@ class Emailsend(Resource):
         user = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
 
         # check signout user
-        user_access_key = user+ '_access'
+        user_access_key = user + '_access'
         is_logout = jwt_redis.get(user_access_key)
         if is_logout:
             return {"msg": "This is a invalid user."}, 401

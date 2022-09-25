@@ -53,15 +53,22 @@ class upload_result_image(Resource):
         
         # upload api for login users
         access_token = bearer.split()[1]
-        user_id = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+        email = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
 
         # check signout user
-        user_access_key = user_id+ '_access'
+        user_access_key = email + '_access'
         is_logout = jwt_redis.get(user_access_key)
         if is_logout:
             return {"msg": "This is a invalid user."}, 401
 
         # writer = get_user()
+
+        # 이메일 받아오면 user_id 찾기
+        sql = f"SELECT user_id \
+        FROM user \
+        WHERE email='{email}'"
+        cursor = database.session_execute(sql)
+        user_id = cursor.fetchall()[0][0]
 
         # postgres image table에 업로드
         result_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/"+image_name
@@ -131,5 +138,4 @@ class get_origin_image(Resource):
         origin_image_url = f"https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/{image_name}"
 
         return origin_image_url
-
 

@@ -73,6 +73,13 @@ class Signin(Resource):
             return {"error": "Please check your email and password."}, 403
 
         user_refresh_key = email + '_refresh'
+        user_access_key = email + '_access'
+
+        is_access_token = jwt_redis.get(user_access_key)
+
+        if is_access_token:
+            jwt_redis.delete(user_access_key)
+
         user_name = User.query.filter(User.email == email).first().name
         access_token = create_access_token(identity=email)
         refresh_token = create_refresh_token(identity=email)
@@ -99,7 +106,7 @@ class Signout(Resource):
         user_refresh_key = user + '_refresh'
         user_access_key = user+ '_access'
         jwt_redis.delete(user_refresh_key)
-        jwt_redis.set(user_access_key, access_token, app.config['JWT_ACCESS_TOKEN_EXPIRES'])
+        jwt_redis.set(user_access_key, access_token, 60 * 30)
         response_dict = {
             "msg": "success logout",
             "user": user
@@ -161,7 +168,7 @@ class Resignin(Resource):
             return {"msg": "This is a invalid user."}, 401
 
         if refresh_token != is_refresh:
-            return {"msg": is_refresh}, 500
+            return {"msg": "server error"}, 500
 
         access_token = create_access_token(identity=user)
         response_dict = {

@@ -141,6 +141,7 @@ class Signup(Resource):
         database.add_instance(User, name=name, email=email, password=password)
 
         user_dict = {
+            "user_id": User.query.filter(User.email == email).first().user_id,
             "email": User.query.filter(User.email == email).first().email,
             "password": User.query.filter(User.email == email).first().password,
             "name": User.query.filter(User.email == email).first().name
@@ -163,7 +164,6 @@ class Resignin(Resource):
         user_refresh_key = user + '_refresh'
 
         is_refresh = jwt_redis.get(user_refresh_key)
-        # print(is_refresh)
         if not is_refresh:
             return {"msg": "This is a invalid user."}, 401
 

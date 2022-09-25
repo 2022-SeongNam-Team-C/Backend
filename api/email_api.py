@@ -31,7 +31,7 @@ class Emailsend(Resource):
             no_user = request.form['email']
             file = request.files['file']
             file.save(secure_filename(file.filename))
-            msg = Message('Ladder_', sender='hee98.09.14@gmail.com', recipients=[no_user])
+            msg = Message('Ladder_추억의 사다리에서 보낸 편지', sender='hee98.09.14@gmail.com', recipients=[no_user])
             msg.body = '완성된 사진을 보내드립니다. 오늘도 즐거운 하루 되시길 바라요 :)'
             with current_app.open_resource(secure_filename(file.filename)) as fp:
                 msg.attach(secure_filename(file.filename), 'image/jpg', fp.read())

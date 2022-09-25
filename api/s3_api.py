@@ -43,13 +43,15 @@ class upload_result_image(Resource):
 
         # upload api for no login users
         if not bearer:
-            user_id = "anonymous"
+            email = "anonymous@nouser.com"
+            user_id = 1
             # postgres image table에 업로드
             result_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/"+image_name
             result_url = result_url.replace(" ","/")
             database.add_instance(Image, user_id = user_id, result_url = result_url, is_deleted = False)
 
-            return "성공적으로 사진이 S3에 저장되었습니다."
+           # return "성공적으로 사진이 S3에 저장되었습니다."
+            return result_url
         
         # upload api for login users
         access_token = bearer.split()[1]
@@ -62,20 +64,15 @@ class upload_result_image(Resource):
             return {"msg": "This is a invalid user."}, 401
 
         # writer = get_user()
-
-        # 이메일 받아오면 user_id 찾기
-        sql = f"SELECT user_id \
-        FROM user \
-        WHERE email='{email}'"
-        cursor = database.session_execute(sql)
-        user_id = cursor.fetchall()[0][0]
+        user_id = 1
 
         # postgres image table에 업로드
         result_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/"+image_name
         result_url = result_url.replace(" ","/")
         database.add_instance(Image, user_id = user_id, result_url = result_url, is_deleted = False)
 
-        return "성공적으로 사진이 S3에 저장되었습니다."
+        # return "성공적으로 사진이 S3에 저장되었습니다."
+        return result_url
 
 
 # origin 이미지 S3업로드
@@ -97,28 +94,34 @@ class upload_origin_image(Resource):
 
         # upload api for no login users
         if not bearer:
-            user_id = "anonymous"
+            email = "anonymous@nouser.com"
+            user_id = 1
             origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+image_name
             origin_url = origin_url.replace(" ","/")
             database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
 
-            return "성공적으로 사진이 S3에 저장되었습니다."
-        #writer = get_user()
+            # return "성공적으로 사진이 S3에 저장되었습니다."
+            return origin_url
+        
+        # writer = get_user()
         # upload api for login users
         access_token = bearer.split()[1]
-        user_id = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+        email = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
 
         # check signout user
-        user_access_key = user_id+ '_access'
+        user_access_key = email + '_access'
         is_logout = jwt_redis.get(user_access_key)
         if is_logout:
             return {"msg": "This is a invalid user."}, 401
+
+        user_id = 1
             
         origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+image_name
         origin_url = origin_url.replace(" ","/")
         database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
 
-        return "성공적으로 사진이 S3에 저장되었습니다."
+        # return "성공적으로 사진이 S3에 저장되었습니다."
+        return origin_url
 
 # (result)변환 이미지 URL불러오기
 @s3.route('/s3/result/get-image-url/<image_name>')
@@ -138,4 +141,3 @@ class get_origin_image(Resource):
         origin_image_url = f"https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/{image_name}"
 
         return origin_image_url
-

@@ -5,6 +5,7 @@ from s3bucket import s3_connect
 from api import s3_api
 from entity.model import Image
 from entity import database
+from entity.model import db
 
 import requests
 from datetime import datetime as dt
@@ -42,21 +43,14 @@ def saveOriginImage(file, email) :
     database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
 
     # ai 셀러리 요청, 이제 요 다음부터 비동기처리
-    convertImage.delay(origin_url)
+    convertImage.delay(origin_url, user_id)
 
     return "성공적으로 사진이 S3에 저장되었습니다."
 
 
 
 #  변환된 사진 저장
-def saveResultImage(file, email) :
-
-    # 이메일 받아오면 user_id 찾기
-    sql = f"SELECT user_id \
-        FROM user \
-        WHERE email='{email}'"
-    cursor = database.session_execute(sql)
-    user_id = cursor.fetchall()[0][0]
+def saveResultImage(file, user_id) :
 
     # 파일 이름 지정
     filename = file.filename.split('.')[0]
@@ -79,6 +73,8 @@ def saveResultImage(file, email) :
 # celery가 처리할 거
     # api요청 (ai 서버)
 @app.task()  
-def convertImage(origin_url):
-    result_image = requests.post(AI_CONVERT_API, origin_url)
+def convertImage(origin_url, user_id):
+######## 수정 필요
+
+    result_image = requests.post(AI_CONVERT_API, files=upload)
     saveResultImage(result_image.content)

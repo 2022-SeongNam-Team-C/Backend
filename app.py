@@ -138,5 +138,23 @@ class Signup(Resource):
     # return "재발행", 200
 
 
+from service.image_service import saveOriginImage, saveResultImage, convertImage 
+
+@ladder_api.route('/convert-image') 
+def post(self):
+    email = get_jwt_identity()
+    originImage = request.files['file']
+    resultImage = saveOriginImage(originImage, email)
+    resp = jsonify(resultImage)
+    resp.status = 201
+    return resp
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5123)

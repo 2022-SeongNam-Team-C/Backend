@@ -28,22 +28,6 @@ app = Celery('tasks',
 # 사진 받아오는 함수 
 def saveOriginImage(file, email) :
 
-    # 이메일 받아오면 user_id 찾기
-    sql = f"SELECT user_id \
-        FROM user \
-        WHERE email='{email}'"
-    cursor = database.session_execute(sql)
-    user_id = cursor.fetchall()[0][0]
-
-    # 파일 이름 지정
-    filename = file.filename.split('.')[0]
-    origin_image_type = file.filename.split('.')[-1]
-    origin_image_created = dt.now().strftime('%Y%m%d-%H%M%S')
-    origin_image_name = f"{origin_image_created}--{filename}.{origin_image_type}"
-
-    # s3버킷에 업로드
-    s3_put_origin_image(s3, 'ladder-s3-bucket', file, origin_image_name)
-    
     header_request = request.headers
     bearer = header_request.get('Authorization')
 
@@ -68,12 +52,38 @@ def saveOriginImage(file, email) :
     if is_logout:
         return {"msg": "This is a invalid user."}, 401
 
+    # 이메일 받아오면 user_id 찾기
+    sql = f"SELECT user_id \
+        FROM user \
+        WHERE email='{email}'"
+    cursor = database.session_execute(sql)
+    user_id = cursor.fetchall()[0][0]
+
+    # 파일 이름 지정
+    filename = file.filename.split('.')[0]
+    origin_image_type = file.filename.split('.')[-1]
+    origin_image_created = dt.now().strftime('%Y%m%d-%H%M%S')
+    origin_image_name = f"{origin_image_created}--{filename}.{origin_image_type}"
+
+    # s3버킷에 업로드
+    s3_put_origin_image(s3, 'ladder-s3-bucket', file, origin_image_name)
+
     # ai 셀러리 요청, 이제 요 다음부터 비동기처리
     convertImage.delay(origin_url, user_id)
 
     return "성공적으로 사진이 S3에 저장되었습니다."
 
 
+
+# celery가 처리할 거
+    # api요청 (ai 서버)
+@app.task()  
+def convertImage(origin_url, user_id):
+######## 수정 필요
+
+    result_image = requests.post(AI_CONVERT_API, files=upload)
+    saveResultImage(result_image.content)
+    
 
 
 #  변환된 사진 저장
@@ -96,12 +106,3 @@ def saveResultImage(file, user_id) :
     print("성공적으로 변환된 사진이 S3에 저장되었습니다.")
 
 
-
-# celery가 처리할 거
-    # api요청 (ai 서버)
-@app.task()  
-def convertImage(origin_url, user_id):
-######## 수정 필요
-
-    result_image = requests.post(AI_CONVERT_API, files=upload)
-    saveResultImage(result_image.content)

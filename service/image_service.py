@@ -20,44 +20,45 @@ jwt_redis = redis.StrictRedis(host='redis', port=6379, decode_responses=True)
 
 
 
-app = Celery('tasks',
-             broker=RBMQ_CONNECTION_URI)
+app = Celery('tasks', broker=RBMQ_CONNECTION_URI)
 
 
 
 # 사진 받아오는 함수 
-def saveOriginImage(file, email) :
+def saveOriginImage(file) :
 
-    header_request = request.headers
-    bearer = header_request.get('Authorization')
+    # header_request = request.headers
+    # bearer = header_request.get('Authorization')
 
-    # upload api for no login users
-    if not bearer:
-        email = "anonymous@nouser.com"
-        user_id = 1
-        # postgres image table에 업로드
-        origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+origin_image_name
-        origin_url = origin_url.replace(" ","/")
-        database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
+    # # upload api for no login users
+    # if not bearer:
+    #     email = "anonymous@nouser.com"
+    #     user_id = 999
+    #     # postgres image table에 업로드
+    #     origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+origin_image_name
+    #     origin_url = origin_url.replace(" ","/")
+    #     database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
 
-        return origin_url
+    #     return origin_url
 
-    # upload api for login users
-    access_token = bearer.split()[1]
-    email = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+    # # upload api for login users
+    # access_token = bearer.split()[1]
+    # email = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
 
-    # check signout user
-    user_access_key = email + '_access'
-    is_logout = jwt_redis.get(user_access_key)
-    if is_logout:
-        return {"msg": "This is a invalid user."}, 401
+    # # check signout user
+    # user_access_key = email + '_access'
+    # is_logout = jwt_redis.get(user_access_key)
+    # if is_logout:
+    #     return {"msg": "This is a invalid user."}, 401
 
     # 이메일 받아오면 user_id 찾기
-    sql = f"SELECT user_id \
-        FROM user \
-        WHERE email='{email}'"
-    cursor = database.session_execute(sql)
-    user_id = cursor.fetchall()[0][0]
+    # sql = f"SELECT user_id \
+    #     FROM user \
+    #     WHERE email='{email}'"
+    # cursor = database.session_execute(sql)
+    # user_id = cursor.fetchall()[0][0]
+
+    user_id = 1
 
     # 파일 이름 지정
     filename = file.filename.split('.')[0]
@@ -68,27 +69,36 @@ def saveOriginImage(file, email) :
     # s3버킷에 업로드
     s3_put_origin_image(s3, 'ladder-s3-bucket', file, origin_image_name)
 
-    # ai 셀러리 요청, 이제 요 다음부터 비동기처리
-    convertImage.delay(origin_url, user_id)
+    # postgres image table에 업로드
+    origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+origin_image_name
+    origin_url = origin_url.replace(" ","/")
+    database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
 
-    return "성공적으로 사진이 S3에 저장되었습니다."
+    # ai 셀러리 요청, 이제 요 다음부터 비동기처리
+    convertImage.delay(origin_url)
+
+    return origin_url
+
 
 
 
 # celery가 처리할 거
     # api요청 (ai 서버)
 @app.task()  
-def convertImage(origin_url, user_id):
-######## 수정 필요
+def convertImage(origin_url):
+    print("convertImage def : ")
+    result_image = requests.post(AI_CONVERT_API, origin_url)
+    print("celery가 드디어 제 일을 하네요 ㅠㅠ")
+    saveResultImage(result_image)
 
-    result_image = requests.post(AI_CONVERT_API, files=upload)
-    saveResultImage(result_image.content)
-    
+
+
 
 
 #  변환된 사진 저장
-def saveResultImage(file, user_id) :
+def saveResultImage(file) :
 
+    user_id =1
     # 파일 이름 지정
     filename = file.filename.split('.')[0]
     result_image_type = file.filename.split('.')[-1]

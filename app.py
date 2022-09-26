@@ -23,7 +23,8 @@ from api.email_api import Email
 from api.s3_api import s3
 from api.history_api import History
 from crypt import methods
-from urllib import request
+# from urllib import request
+import jwt as pyjwt
 
 app = Flask(__name__)
 app.config.update(DEBUG=True)
@@ -47,7 +48,7 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 604800
 app.config['JWT_TOKEN_LOCATION'] = ['json']   # jwt 토큰을 점검할 때 확인할 위치
 jwt = JWTManager(app)
 
-jwt_redis = redis.StrictRedis(host='ladder-docker_redis-db_1', port=6379, decode_responses=True)
+jwt_redis = redis.StrictRedis(host='ladder-docker-redis', port=6379, decode_responses=True)
 bcrypt = Bcrypt(app)
 
 @ladder_api.route('/auth/signin')    # login api
@@ -138,20 +139,65 @@ class Signup(Resource):
     # return "재발행", 200
 
 
+
+
+
 from service.image_service import saveOriginImage, saveResultImage, convertImage 
 
 @ladder_api.route('/convert-image') 
-def post(self):
-    email = get_jwt_identity()
-    originImage = request.files['file']
-    resultImage = saveOriginImage(originImage, email)
-    resp = jsonify(resultImage)
-    resp.status = 201
-    return resp
+class ConvertImage(Resource):
+    def post(self):
+        # if not request.is_json:
+        #     return jsonify({"msg": "Missing JSON in request"}), 400
+        
+        # email = get_jwt_identity()
+
+        # email = request.json.get('email')
+
+        # header_request = request.headers
+        # bearer = header_request.get('Authorization')
+        # if not bearer:
+        #     return {"error": "You don't have access authentication."}, 401
+        # access_token = bearer.split()[1]
+        # email = pyjwt.decode(access_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
+        # print(email)
+
+        originImage = request.files['file']
+        print('originImage request OK')
+
+        resultImage = saveOriginImage(originImage)
+        print("saveImage OK")
+        resp = jsonify(resultImage)
+        resp.status = 201
+        return resp
+
+## Create user
+@app.route('/create-user', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    email = data['email']
+    name = data['name']
+    password = data['password']
+    database.add_instance(User, email=email, name=name, password=password)
+    
+    return json.dumps("Added"), 200
 
 
 
-
+## Read all user
+@app.route('/fetch-users', methods=['GET'])
+def fetch_users():
+    users = database.get_all(User)
+    all_user = []
+    for user in users:
+        new_user = {
+            "user_id": user.user_id,
+            "email": user.email,
+            "name": user.name,
+            "password": user.password,
+        }
+        all_user.append(new_user)
+    return json.dumps(all_user), 200
 
 
 

@@ -11,7 +11,7 @@ from datetime import datetime as dt
 from s3bucket.s3_connect import s3
 from s3bucket.s3_upload import s3_put_result_image, s3_put_origin_image
 from config.ai_config import RBMQ_CONNECTION_URI, AI_CONVERT_API
-
+import time
 import jwt as pyjwt
 import redis
 
@@ -92,7 +92,10 @@ def convertImage(origin_url):
     print(req)
     # request : params = request.get_json()
     # response :  make_photo(params['img'])
-    result_image = requests.post(AI_CONVERT_API,req)
+    result_image = requests.post(AI_CONVERT_API, req, timeout=5)
+
+
+
     print("convertImage def : 333333333333")
     #result_image.request.get_file()
     saveResultImage(result_image)

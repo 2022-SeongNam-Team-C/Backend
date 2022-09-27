@@ -22,23 +22,27 @@ class history(Resource):
             return {"error": "You don't have access authentication."}, 401
             
         access_token = bearer.split()[1]
-        email = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
 
-        # check signout user
-        user_access_key = email + '_access'
-        is_logout = jwt_redis.get(user_access_key)
-        if is_logout:
-            return {"msg": "This is a invalid user."}, 401
+        try:
+            email = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+            # check signout user
+            user_access_key = email + '_access'
+            is_logout = jwt_redis.get(user_access_key)
+            if is_logout:
+                return {"msg": "This is a invalid user."}, 401
 
-        user_id = 1
+            user_id = 1
 
-        images = Image.query.filter_by(user_id=user_id).all()
-        all_image = []
-        for image in images:
-            new_image = {
-                "image_url": image.result_url
-            }
-            all_image.append(new_image)
-        
+            images = Image.query.filter_by(user_id=user_id).all()
+            all_image = []
+            for image in images:
+                new_image = {
+                    "image_url": image.result_url
+                }
+                all_image.append(new_image)
+            
 
-        return json.dumps(all_image), 200
+            return json.dumps(all_image), 200
+
+        except pyjwt.ExpiredSignatureError:
+            return {"error": "This Token is expired."}, 401

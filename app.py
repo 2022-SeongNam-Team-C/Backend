@@ -1,3 +1,4 @@
+import imp
 from os import access
 import secrets
 from flask import jsonify, request
@@ -23,6 +24,7 @@ from crypt import methods
 from flask_cors import CORS
 import jwt as pyjwt
 from module.check_token import check_access_token
+# from jwt.exception import ExpiredSignatureError
 
 app = create_app()
 CORS(app)
@@ -42,7 +44,7 @@ api.add_namespace(History, '')
 secrets_key = 'Ladder_teamc'
 
 app.config['JWT_SECRET_KEY'] = secrets_key  # JWT 시크릿 키
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 60 * 60
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 60
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 60 * 60 * 24 * 14
 app.config['JWT_TOKEN_LOCATION'] = ['json']   # jwt 토큰을 점검할 때 확인할 위치
 jwt = JWTManager(app)
@@ -102,17 +104,22 @@ class Signout(Resource):
             return {"error": "You don't have access authentication."}, 401
 
         access_token = bearer.split()[1]
-        user = pyjwt.decode(access_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
-        user_refresh_key = user + '_refresh'
-        user_access_key = user+ '_access'
-        jwt_redis.delete(user_refresh_key)
-        jwt_redis.set(user_access_key, access_token, 60 * 30)
-        response_dict = {
-            "msg": "success logout",
-            "user": user
-        }
+        
+        # check is expired token
+        try:
+            user = pyjwt.decode(access_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
+            user_refresh_key = user + '_refresh'
+            user_access_key = user+ '_access'
+            jwt_redis.delete(user_refresh_key)
+            jwt_redis.set(user_access_key, access_token, 60 * 30)
+            response_dict = {
+                "msg": "success logout",
+                "user": user
+            }
 
-        return response_dict, 200 
+            return response_dict, 200
+        except pyjwt.ExpiredSignatureError:
+            return {"error": "This Token is expired."}, 401
 
 
 @ladder_api.route('/auth/signup')   # register users api

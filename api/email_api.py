@@ -41,19 +41,24 @@ class Emailsend(Resource):
 
         # login user email send
         access_token = bearer.split()[1]
-        user = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+        
+        # check is expired token
+        try:
+            user = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+            # check signout user
+            user_access_key = user + '_access'
+            is_logout = jwt_redis.get(user_access_key)
+            if is_logout:
+                return {"msg": "This is a invalid user."}, 401
 
-        # check signout user
-        user_access_key = user + '_access'
-        is_logout = jwt_redis.get(user_access_key)
-        if is_logout:
-            return {"msg": "This is a invalid user."}, 401
+            file = request.files['file']
+            file.save(secure_filename(file.filename))
+            msg = Message('Ladder_추억의 사다리에서 보낸 편지', sender='hee98.09.14@gmail.com', recipients=[user])
+            msg.body = '완성된 사진을 보내드립니다. 오늘도 즐거운 하루 되시길 바라요 :)'
+            with current_app.open_resource(secure_filename(file.filename)) as fp:
+                msg.attach(secure_filename(file.filename), 'image/jpg', fp.read())
+            mail.send(msg)
+            return {"msg": "Email send success"}, 200
 
-        file = request.files['file']
-        file.save(secure_filename(file.filename))
-        msg = Message('Ladder_추억의 사다리에서 보낸 편지', sender='hee98.09.14@gmail.com', recipients=[user])
-        msg.body = '완성된 사진을 보내드립니다. 오늘도 즐거운 하루 되시길 바라요 :)'
-        with current_app.open_resource(secure_filename(file.filename)) as fp:
-            msg.attach(secure_filename(file.filename), 'image/jpg', fp.read())
-        mail.send(msg)
-        return {"msg": "Email send success"}, 200
+        except pyjwt.ExpiredSignatureError:
+            return {"error": "This Token is expired."}, 401    

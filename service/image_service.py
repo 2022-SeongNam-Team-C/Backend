@@ -75,10 +75,9 @@ def saveOriginImage(file) :
     database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
 
     # ai 셀러리 요청, 이제 요 다음부터 비동기처리
-    convertImage.delay(origin_url)
+    convertImage(origin_url)
 
     return origin_url
-
 
 
 
@@ -86,12 +85,17 @@ def saveOriginImage(file) :
     # api요청 (ai 서버)
 @app.task()  
 def convertImage(origin_url):
-    print("convertImage def : ")
-    result_image = requests.post(AI_CONVERT_API, origin_url)
-    print("celery가 드디어 제 일을 하네요 ㅠㅠ")
+    print("convertImage def : 11111111111")
+    headers = {'Content-Type': 'application/json; chearset=utf-8'}
+    req = {'img' : origin_url}
+    print("=========================================")
+    print(req)
+    # request : params = request.get_json()
+    # response :  make_photo(params['img'])
+    result_image = requests.post(AI_CONVERT_API,req)
+    print("convertImage def : 333333333333")
+    #result_image.request.get_file()
     saveResultImage(result_image)
-
-
 
 
 

@@ -21,14 +21,14 @@ from api.email_api import Email
 from api.s3_api import s3
 from api.history_api import History
 from crypt import methods
-from flask_cors import CORS
+# from flask_cors import CORS
 import jwt as pyjwt
 from prometheus_client import generate_latest, REGISTRY, Counter, Gauge, Histogram
 
 
 # flask App
 app = create_app()
-CORS(app)
+# CORS(app)
 app.config.update(DEBUG=True)
 app.register_blueprint(email_module, url_prefix = '/api/v1')
 app.register_blueprint(s3_module, url_prefix = '/api/v1')
@@ -214,6 +214,35 @@ class Resignin(Resource):
         }
         REQUESTS.labels(method='GET', endpoint="/auth/refresh", status_code=200).inc()  
         return response_dict, 200
+
+from service.image_service import saveOriginImage, saveResultImage, convertImage 
+
+@app.route('/convert-image', methods=['POST']) 
+def get_result():
+        # if not request.is_json:
+        #     return jsonify({"msg": "Missing JSON in request"}), 400
+        
+        # email = get_jwt_identity()
+
+        # email = request.json.get('email')
+
+        # header_request = request.headers
+        # bearer = header_request.get('Authorization')
+        # if not bearer:
+        #     return {"error": "You don't have access authentication."}, 401
+        # access_token = bearer.split()[1]
+        # email = pyjwt.decode(access_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
+        # print(email)
+
+    originImage = request.files['file']
+    print('originImage request OK')
+
+    resultImage = saveOriginImage(originImage)
+    print("saveImage OK")
+    #resp = jsonify(resultImage)
+    #resp.status = 201
+    return resultImage
+
 
 @app.route('/metrics')
 @IN_PROGRESS.track_inprogress()

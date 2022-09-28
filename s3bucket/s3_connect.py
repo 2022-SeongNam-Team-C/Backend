@@ -7,13 +7,14 @@ def s3_connection():
             service_name = "s3",
             region_name = "ap-northeast-2",
             aws_access_key_id = "AKIAWLCHMQTOJFJOXENM",
-            aws_secret_access_key = ""
+            aws_secret_access_key = "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"
             # secret key 넣고 사용해주세요
         )
+        print("s3 bucket connected!1")
     except Exception as e:
         print(e)
-    else:
-        print("s3 bucket connected!")
-        return s3
+        return False
+    return s3
+        
 
 s3 = s3_connection()    

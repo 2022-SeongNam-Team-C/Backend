@@ -18,3 +18,5 @@ flask_bcrypt
 redis
 flask_cors
 pyjwt
+prometheus-flask-exporter
+prometheus_client

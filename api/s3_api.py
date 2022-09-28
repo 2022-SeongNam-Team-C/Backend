@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 
 from entity import database
 from entity.model import Image
-
+from entity.model import User
 from crypt import methods
 from datetime import datetime as dt
 
@@ -43,11 +43,12 @@ def result_up():
     # upload api for no login users
     if not bearer:
         email = "anonymous@nouser.com"
-        user_id = 1
+        id = 10000
+        # 이부분은 고민을 좀 해봐야할 것 같음
         # postgres image table에 업로드
         result_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/"+image_name
         result_url = result_url.replace(" ","/")
-        database.add_instance(Image, user_id = user_id, result_url = result_url, is_deleted = False)
+        database.add_instance(Image, user_id = id, result_url = result_url, is_deleted = False)
 
         # return "성공적으로 사진이 S3에 저장되었습니다."
         return result_url
@@ -65,12 +66,12 @@ def result_up():
             return {"msg": "This is a invalid user."}, 401
 
         # writer = get_user()
-        user_id = 1
+        id = User.query.filter(User.email == email).first().user_id
 
         # postgres image table에 업로드
         result_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/"+image_name
         result_url = result_url.replace(" ","/")
-        database.add_instance(Image, user_id = user_id, result_url = result_url, is_deleted = False)
+        database.add_instance(Image, user_id = id, result_url = result_url, is_deleted = False)
 
         # return "성공적으로 사진이 S3에 저장되었습니다."
         return result_url
@@ -96,10 +97,10 @@ def origin_up():
     # upload api for no login users
     if not bearer:
         email = "anonymous@nouser.com"
-        user_id = 1
+        id = 10000
         origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+image_name
         origin_url = origin_url.replace(" ","/")
-        database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
+        database.add_instance(Image, user_id = id, origin_url = origin_url, is_deleted = False)
 
         # return "성공적으로 사진이 S3에 저장되었습니다."
         return origin_url
@@ -117,11 +118,11 @@ def origin_up():
         if is_logout:
             return {"msg": "This is a invalid user."}, 401
 
-        user_id = 1
+        id =  id = User.query.filter(User.email == email).first().user_id
             
         origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+image_name
         origin_url = origin_url.replace(" ","/")
-        database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
+        database.add_instance(Image, user_id = id, origin_url = origin_url, is_deleted = False)
 
         # return "성공적으로 사진이 S3에 저장되었습니다."
         return origin_url

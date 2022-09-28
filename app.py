@@ -38,7 +38,7 @@ api = Api(app, version=1.0, title="ladder api", description='ladder api docs', d
 ladder_api = api.namespace('api/v1', description='ladder api docs')
 
 api.add_namespace(Email, '')
-api.add_namespace(s3, '')
+# api.add_namespace(s3, '')
 api.add_namespace(History, '')
 
 secrets_key = 'Ladder_teamc'

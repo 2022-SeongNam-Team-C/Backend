@@ -75,7 +75,7 @@ def saveOriginImage(file) :
     database.add_instance(Image, user_id = user_id, origin_url = origin_url, is_deleted = False)
 
     # ai 셀러리 요청, 이제 요 다음부터 비동기처리
-    convertImage(origin_url)
+    convertImage.delay(origin_url)
 
     return origin_url
 
@@ -93,8 +93,6 @@ def convertImage(origin_url):
     # request : params = request.get_json()
     # response :  make_photo(params['img'])
     result_image = requests.post(AI_CONVERT_API, req, timeout=5)
-
-
 
     print("convertImage def : 333333333333")
     #result_image.request.get_file()

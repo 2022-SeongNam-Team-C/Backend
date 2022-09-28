@@ -38,13 +38,13 @@ api = Api(app, version=1.0, title="ladder api", description='ladder api docs', d
 ladder_api = api.namespace('api/v1', description='ladder api docs')
 
 api.add_namespace(Email, '')
-api.add_namespace(s3, '')
+# api.add_namespace(s3, '')
 api.add_namespace(History, '')
 
 secrets_key = 'Ladder_teamc'
 
 app.config['JWT_SECRET_KEY'] = secrets_key  # JWT 시크릿 키
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 60
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 60 * 60
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 60 * 60 * 24 * 14
 app.config['JWT_TOKEN_LOCATION'] = ['json']   # jwt 토큰을 점검할 때 확인할 위치
 jwt = JWTManager(app)

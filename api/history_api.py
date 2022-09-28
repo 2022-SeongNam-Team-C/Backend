@@ -4,6 +4,7 @@ from entity.model import Image
 from flask_restx import Resource, Namespace
 import jwt as pyjwt
 import redis
+from entity.model import User
 
 History = Namespace('api/v1')
 bp = Blueprint('history', __name__, url_prefix='/api/v1')
@@ -31,9 +32,10 @@ class history(Resource):
             if is_logout:
                 return {"msg": "This is a invalid user."}, 401
 
-            user_id = 1
+            # user_id = 1
+            id = User.query.filter(User.email == email).first().user_id
 
-            images = Image.query.filter_by(user_id=user_id).all()
+            images = Image.query.filter_by(user_id=id).all()
             all_image = []
             for image in images:
                 new_image = {
@@ -42,7 +44,8 @@ class history(Resource):
                 all_image.append(new_image)
             
 
-            return json.dumps(all_image), 200
+            # return json.dumps(all_image), 200
+            return all_image, 200
 
         except pyjwt.ExpiredSignatureError:
             return {"error": "This Token is expired."}, 401

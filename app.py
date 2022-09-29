@@ -147,29 +147,15 @@ from service.image_service import saveOriginImage, saveResultImage, convertImage
 @ladder_api.route('/convert-image') 
 class ConvertImage(Resource):
     def post(self):
-        # if not request.is_json:
-        #     return jsonify({"msg": "Missing JSON in request"}), 400
-        
-        # email = get_jwt_identity()
-
-        # email = request.json.get('email')
-
-        # header_request = request.headers
-        # bearer = header_request.get('Authorization')
-        # if not bearer:
-        #     return {"error": "You don't have access authentication."}, 401
-        # access_token = bearer.split()[1]
-        # email = pyjwt.decode(access_token, app.config['JWT_SECRET_KEY'], 'HS256')['sub']
-        # print(email)
-
-        originImage = request.files['file']
+        origin_image = request.files['file']
         print('originImage request OK')
 
-        resultImage = saveOriginImage(originImage)
+        result_url = saveOriginImage(origin_image)
         print("saveImage OK")
-        resp = jsonify(resultImage)
-        resp.status = 201
-        return resp
+
+        return result_url
+
+
 
 ## Create user
 @app.route('/create-user', methods=['POST'])

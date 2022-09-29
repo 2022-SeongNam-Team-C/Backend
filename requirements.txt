@@ -20,3 +20,7 @@ flask_bcrypt
 flask_restx
 redis
 requests
+pillow
+pybase64
+bytesbufio
+matplotlib

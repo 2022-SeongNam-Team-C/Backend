@@ -5,7 +5,7 @@ from datetime import datetime
 db = flask_sqlalchemy.SQLAlchemy()
 
 class User(db.Model):
-    __tablename__ = 'user'
+    __tablename__ = 'User'
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
@@ -25,9 +25,9 @@ class User(db.Model):
 
 
 class Image(db.Model):
-    __tablename__ = 'image'
+    __tablename__ = 'Image'
     image_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('User.user_id'), nullable=False)
     origin_url = db.Column(db.String(200))
     result_url = db.Column(db.String(200))
     create_at = db.Column(db.DateTime, default=datetime.now)

@@ -3,7 +3,7 @@ import os
 # AI_SERVER_HOST=os.environ.get('AI_HOST')
 # AI_SERVER_PORT=os.environ.get('AI_PORT')
 
-AI_CONVERT_API=f'http://ai:5555/images/result'
+AI_CONVERT_API=f'http://ai:5555/api/v1/converting-image'
 
 # RABBITMQ_HOST=os.environ.get('RABBITMQ_HOST')
 # RABBITMQ_PORT=os.environ.get('RABBITMQ_PORT')

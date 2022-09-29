@@ -141,8 +141,8 @@ class Signup(Resource):
 
 
 
-
-from service.image_service import saveOriginImage, saveResultImage, convertImage 
+from model_module import make_photo
+from service.image_service import saveOriginImage, saveResultImage
 
 @ladder_api.route('/convert-image') 
 class ConvertImage(Resource):
@@ -151,8 +151,11 @@ class ConvertImage(Resource):
         originImage = request.files['file']
         print('originImage request OK')
 
-        result_url = saveOriginImage(originImage)
-        print("save Origin Image OK")
+        origin_url = saveOriginImage(originImage)
+        Response = make_photo(origin_url)
+        print(type(Response))
+        print(Response)
+        result_url = saveResultImage(Response)
 
         return result_url
 

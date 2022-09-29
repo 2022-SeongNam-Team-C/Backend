@@ -46,31 +46,26 @@ def saveOriginImage(file) :
     origin_url = origin_url.replace(" ","/")
     database.add_instance(Image, user_id = user_id, origin_url = origin_url)
 
-    # ai 셀러리 요청, 이제 요 다음부터 비동기처리
-    convertImage.delay(origin_url)
+    print("111111111111111")
+    return origin_url
 
 
-@app.task()  
-def convertImage(origin_url):
+# @app.task()  
+# def convertImage(origin_url):
 
-    req = {'img' : origin_url}
-    print(req)
-
-    json_data = requests.post(AI_CONVERT_API,json=req)
-    dict_data = json.loads(json_data)
-    img = dict_data['img']
-    img = base64.b64decode(img)
-    img = BytesIO(img)
-    img = pilImage.open(img)
-    print("====================sdsdsdsd")
-    print(type(img))
-
-    saveResultImage(img)
+#     req = {'img' : origin_url}
+#     print(req)
+#     print("===========================")
+#     res = requests.post(AI_CONVERT_API,json=req)
+#     #    return make_photo(params['img'])
+#     print(type(res))
+#     print("aaaaaaaaaaaaaaaaa")
+#     print(res)
+    
+#     return saveResultImage(res.content)
 
 
 
-
-#  변환된 사진 저장
 def saveResultImage(file) :
     print("filename================")
 

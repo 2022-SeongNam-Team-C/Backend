@@ -23,3 +23,16 @@ requests
 pillow
 pybase64
 bytesbufio
+albumentations
+iglovikov_helper_functions
+pytorch_lightning
+pytorch_toolbelt
+segmentation-models-pytorch
+tqdm
+people_segmentation
+opencv-python
+matplotlib
+wget
+datetime
+tensorflow
+tensorflow-io

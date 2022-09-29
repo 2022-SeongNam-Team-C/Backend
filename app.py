@@ -147,14 +147,14 @@ from service.image_service import saveOriginImage, saveResultImage, convertImage
 @ladder_api.route('/convert-image') 
 class ConvertImage(Resource):
     def post(self):
-        origin_image = request.files['file']
+        
+        originImage = request.files['file']
         print('originImage request OK')
 
-        result_url = saveOriginImage(origin_image)
-        print("saveImage OK")
+        result_url = saveOriginImage(originImage)
+        print("save Origin Image OK")
 
         return result_url
-
 
 
 ## Create user

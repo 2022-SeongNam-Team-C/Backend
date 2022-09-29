@@ -23,4 +23,3 @@ requests
 pillow
 pybase64
 bytesbufio
-matplotlib

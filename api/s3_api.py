@@ -79,9 +79,9 @@ def result_up():
         return {"error": "This Token is expired."}, 401
 
 # origin 이미지 S3업로드
-@bp.route('/s3/origin/upload-image-url', methods=['POST'])
-def origin_up():
-    file = request.files['file']
+# @bp.route('/s3/origin/upload-image-url', methods=['POST'])
+def origin_up(file):
+    # file = request.files['file']
 
     filename = file.filename.split('.')[0]
     image_type = file.filename.split('.')[-1]

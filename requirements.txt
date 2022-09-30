@@ -1,5 +1,4 @@
 flask==2.0.2
-# mysql-connector-python==8.0.27
 Flask-SQLAlchemy==2.5.1
 Flask-Migrate==3.1.0
 alembic==1.7.5
@@ -20,3 +19,17 @@ flask_cors
 pyjwt
 prometheus-flask-exporter
 prometheus_client
+albumentations
+iglovikov_helper_functions
+pytorch_lightning
+pytorch_toolbelt
+segmentation-models-pytorch
+torch
+tqdm
+people_segmentation
+matplotlib
+wget
+datetime
+tensorflow
+opencv-python
+Pillow

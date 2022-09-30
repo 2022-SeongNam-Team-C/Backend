@@ -34,3 +34,4 @@ wget
 datetime
 tensorflow
 opencv-python
+Pillow

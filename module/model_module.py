@@ -25,7 +25,7 @@ from datetime import datetime
 from flask import send_file, send_from_directory
 import torchvision.models as torch_model
 from s3bucket.s3_upload import s3_put_origin_image, s3_put_result_image
-from api.s3_api import s3
+from s3bucket.s3_connect import s3
 
 # path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'weight.pth')
 # weight = torch.load('./weight.pth', map_location='cpu')
@@ -103,6 +103,7 @@ def make_photo(img_url):
     model = create_model("Unet_2020-07-20")
     model.eval()
     image_file = load_rgb(img)    # load_rgb : image file return
+    print(image_file)
     image_file = resize_select(image_file)   # return resize image file
     cv2.imwrite('pop.jpg', image_file)
 
@@ -267,9 +268,20 @@ def make_photo(img_url):
     print(file_name)
 
     cv2.imwrite(file_name, result)
-    s3_put_result_image(s3, 'ladder-s3-bucket', cv2.imencode(result), file_name)
+    print(result)
 
-    result_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origins/"+file_name
+    data = cv2.imencode('.jpeg', result)[1].tobytes()
+    print(data)
+
+    # s3, bucket, file, filename
+    s3.put_object(
+            Body = data,
+            Bucket = 'ladder-s3-bucket',
+            Key = f'result/{file_name}',
+            ContentType = 'image/jpeg'
+    )
+
+    result_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/result/"+file_name
 
     return result_url
     # return send_file(file_name, mimetype='image/')

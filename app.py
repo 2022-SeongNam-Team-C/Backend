@@ -218,63 +218,60 @@ class Resignin(Resource):
         REQUESTS.labels(method='GET', endpoint="/auth/refresh", status_code=200).inc()  
         return response_dict, 200
 
-@ladder_api.route('/images/result')
-class ChangePhoto(Resource):
-    @TIMINGS.time()
-    @IN_PROGRESS.track_inprogress()
-    def post(self):
-        header_request = request.headers
-        bearer = header_request.get('Authorization')
+@app.route('/api/v1/images/result', methods=['POST'])
+@TIMINGS.time()
+@IN_PROGRESS.track_inprogress()
+def get_image():
+    header_request = request.headers
+    bearer = header_request.get('Authorization')
 
-        file = request.files['file']
+    file = request.files['file']
 
-        if not file:
-            REQUESTS.labels(method='POST', endpoint="/images/result", status_code=400).inc()
-            return {"error": "We can't find image file."}, 400
+    if not file:
+        REQUESTS.labels(method='POST', endpoint="/images/result", status_code=400).inc()
+        return {"error": "We can't find image file."}, 400
 
-        if not bearer:
-            s3.put_object(
-                Body = file,
-                Bucket = 'ladder-s3-bucket',
-                Key = f'origin/{secure_filename(file.filename)}',
-                ContentType = 'image/jpeg'
-            )
-            origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+secure_filename(file.filename)
-            REQUESTS.labels(method='POST', endpoint="/images/result", status_code=200).inc()
-            return make_photo(origin_url)
+    if not bearer:
+        s3.put_object(
+            Body = file,
+            Bucket = 'ladder-s3-bucket',
+            Key = f'origin/{secure_filename(file.filename)}',
+            ContentType = 'image/jpeg'
+        )
+        origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+secure_filename(file.filename)
+        REQUESTS.labels(method='POST', endpoint="/images/result", status_code=200).inc()
+        return make_photo(origin_url)
 
-        access_token = bearer.split()[1]
+    access_token = bearer.split()[1]
 
-        try:
-            email = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
-            user_access_key = email + '_access'
-            is_logout = jwt_redis.get(user_access_key)
-            if is_logout:
-                REQUESTS.labels(method='POST', endpoint="/images/result", status_code=401).inc()
-                return {"msg": "This is a invalid user."}, 401
-            
-            id = User.query.filter(User.email == email).first().user_id
-
-            s3.put_object(
-                Body = file,
-                Bucket = 'ladder-s3-bucket',
-                Key = f'origin/{secure_filename(file.filename)}',
-                ContentType = 'image/jpeg'
-            )
-            
-            origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+secure_filename(file.filename)
-            database.add_instance(Image, user_id = id, origin_url = origin_url, is_deleted = False)
-
-            result_url =  make_photo(origin_url)
-            database.add_instance(Image, user_id = id, result_url = result_url, is_deleted = False)
-
-            REQUESTS.labels(method='POST', endpoint="/images/result", status_code=200).inc()
-            return {"result_image": result_url}, 200
-        except pyjwt.ExpiredSignatureError:
+    try:
+        email = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+        user_access_key = email + '_access'
+        is_logout = jwt_redis.get(user_access_key)
+        if is_logout:
             REQUESTS.labels(method='POST', endpoint="/images/result", status_code=401).inc()
-            return {"error": "This Token is expired."}, 401
+            return {"msg": "This is a invalid user."}, 401
+        
+        id = User.query.filter(User.email == email).first().user_id
 
+        s3.put_object(
+            Body = file,
+            Bucket = 'ladder-s3-bucket',
+            Key = f'origin/{secure_filename(file.filename)}',
+            ContentType = 'image/jpeg'
+        )
+        
+        origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+secure_filename(file.filename)
+        database.add_instance(Image, user_id = id, origin_url = origin_url, is_deleted = False)
 
+        result_url =  make_photo(origin_url)
+        database.add_instance(Image, user_id = id, result_url = result_url, is_deleted = False)
+
+        REQUESTS.labels(method='POST', endpoint="/images/result", status_code=200).inc()
+        return {"result_image": result_url}, 200
+    except pyjwt.ExpiredSignatureError:
+        REQUESTS.labels(method='POST', endpoint="/images/result", status_code=401).inc()
+        return {"error": "This Token is expired."}, 401
 
 
 @app.route('/metrics')

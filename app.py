@@ -1,4 +1,3 @@
-import imp
 from os import access
 from flask import jsonify, request
 from flask_jwt_extended import ( JWTManager, jwt_required, create_access_token, create_refresh_token, get_jwt_identity)
@@ -11,6 +10,7 @@ from flask import Response
 from __init__ import create_app
 from entity import database
 from entity.model import User
+from entity.model import Image
 from entity.model import db
 from flask_restx import Api, Resource# Api 구현을 위한 Api 객체 import
 from api.email_api import bp as email_module
@@ -18,12 +18,15 @@ from api.s3_api import bp as s3_module
 from api.history_api import bp as history_module
 from datetime import datetime as dt
 from api.email_api import Email
-from api.s3_api import s3
+# from api.s3_api import s3
+from s3bucket.s3_connect import s3
 from api.history_api import History
 from crypt import methods
 from flask_cors import CORS
 import jwt as pyjwt
 from prometheus_client import generate_latest, REGISTRY, Counter, Gauge, Histogram
+from werkzeug.utils import secure_filename
+from module.model_module import make_photo
 
 
 # flask App
@@ -214,6 +217,62 @@ class Resignin(Resource):
         }
         REQUESTS.labels(method='GET', endpoint="/auth/refresh", status_code=200).inc()  
         return response_dict, 200
+
+@app.route('/api/v1/images/result', methods=['POST'])
+@TIMINGS.time()
+@IN_PROGRESS.track_inprogress()
+def get_image():
+    header_request = request.headers
+    bearer = header_request.get('Authorization')
+
+    file = request.files['file']
+
+    if not file:
+        REQUESTS.labels(method='POST', endpoint="/images/result", status_code=400).inc()
+        return {"error": "We can't find image file."}, 400
+
+    if not bearer:
+        s3.put_object(
+            Body = file,
+            Bucket = 'ladder-s3-bucket',
+            Key = f'origin/{secure_filename(file.filename)}',
+            ContentType = 'image/jpeg'
+        )
+        origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+secure_filename(file.filename)
+        REQUESTS.labels(method='POST', endpoint="/images/result", status_code=200).inc()
+        return make_photo(origin_url)
+
+    access_token = bearer.split()[1]
+
+    try:
+        email = pyjwt.decode(access_token, secrets_key, 'HS256')['sub']
+        user_access_key = email + '_access'
+        is_logout = jwt_redis.get(user_access_key)
+        if is_logout:
+            REQUESTS.labels(method='POST', endpoint="/images/result", status_code=401).inc()
+            return {"msg": "This is a invalid user."}, 401
+        
+        id = User.query.filter(User.email == email).first().user_id
+
+        s3.put_object(
+            Body = file,
+            Bucket = 'ladder-s3-bucket',
+            Key = f'origin/{secure_filename(file.filename)}',
+            ContentType = 'image/jpeg'
+        )
+        
+        origin_url = "https://ladder-s3-bucket.s3.ap-northeast-2.amazonaws.com/origin/"+secure_filename(file.filename)
+        database.add_instance(Image, user_id = id, origin_url = origin_url, is_deleted = False)
+
+        result_url =  make_photo(origin_url)
+        database.add_instance(Image, user_id = id, result_url = result_url, is_deleted = False)
+
+        REQUESTS.labels(method='POST', endpoint="/images/result", status_code=200).inc()
+        return {"result_image": result_url}, 200
+    except pyjwt.ExpiredSignatureError:
+        REQUESTS.labels(method='POST', endpoint="/images/result", status_code=401).inc()
+        return {"error": "This Token is expired."}, 401
+
 
 @app.route('/metrics')
 @IN_PROGRESS.track_inprogress()

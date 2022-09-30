@@ -38,10 +38,11 @@ class history(Resource):
             images = Image.query.filter_by(user_id=id).all()
             all_image = []
             for image in images:
-                new_image = {
-                    "image_url": image.result_url
-                }
-                all_image.append(new_image)
+                if image.result_url:
+                    new_image = {
+                        "image_url": image.result_url
+                    }
+                    all_image.append(new_image)
             
 
             # return json.dumps(all_image), 200
